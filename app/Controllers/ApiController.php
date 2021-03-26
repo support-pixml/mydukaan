@@ -9,6 +9,8 @@ use App\Models\UserModel;
 use App\Models\CategoryModel;
 use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\HTTP\Files\UploadedFile;
+use Exception;
+use ReflectionException;
 
 class ApiController extends Controller
 {
@@ -57,7 +59,7 @@ class ApiController extends Controller
             $db      = \Config\Database::connect();
             $db->table('users')->insert($data);
             $message = 'User Created';
-            return $this->respondCreated($message, 201);
+            return $this->respond(['message', $message], 200);
         }
     }
 
@@ -86,8 +88,32 @@ class ApiController extends Controller
             }
             else
             {
-                return $this->respond($user_data, 200);
+                return $this->getJWTForUser($user_data);
             }
+        }
+    }
+
+    private function getJWTForUser($user_data, int $responseCode = ResponseInterface::HTTP_OK)
+    {
+        try {
+            helper('jwt');
+
+            return $this
+                ->respond(
+                    [
+                        'message' => 'User authenticated successfully',
+                        'user' => $user_data,
+                        'access_token' => getSignedJWTForUser($user_data->email)
+                    ]
+                );
+        } catch (Exception $exception) {
+            return $this
+                ->respond(
+                    [
+                        'error' => $exception->getMessage(),
+                    ],
+                    $responseCode
+                );
         }
     }
 
@@ -133,6 +159,7 @@ class ApiController extends Controller
         else
         {
             $post = $this->request->getPost();
+            // $post = $this->request->getJSON();
 
             $long_id = random_string('alnum', 12);
             $slug = $this->slugify($post['name']);
@@ -154,15 +181,14 @@ class ApiController extends Controller
 
             $file = $this->request->getFile('image');
             $newName = $file->getRandomName();
-            // $file->move(WRITEPATH.'uploads', $newName);
-            $path = $file->store('categories/', $newName);
+            $path = $file->move(FCPATH.'/uploads/categories/', $newName);
 
             $data['image'] = $newName;
             
             $db->table('categories')->insert($data);
 
             $message = 'Category Created';
-            return $this->respondCreated($message, 201);
+            return $this->respond(['message' => $message], 200);
         }
     }
 
@@ -189,13 +215,13 @@ class ApiController extends Controller
         $slug = $this->slugify($post['name']);
 
         $db      = \Config\Database::connect();
-        $query = $db->table('categories')->where('slug', $slug)->get();
-        $result = $query->getRow();
-        if($result)
-        {
-            $message = 'Category name is taken.';
-            return $this->fail($message, 400);
-        }
+        // $query = $db->table('categories')->where('slug', $slug)->get();
+        // $result = $query->getRow();
+        // if($result)
+        // {
+        //     $message = 'Category name is taken.';
+        //     return $this->fail($message, 400);
+        // }
 
         $data = [
                 'name' => $post['name'],
@@ -206,8 +232,7 @@ class ApiController extends Controller
         {
             $file = $this->request->getFile('image');
             $newName = $file->getRandomName();
-            // $file->move(WRITEPATH.'uploads', $newName);
-            $path = $file->store('categories/', $newName);
+            $path = $file->move(FCPATH.'/uploads/categories/', $newName);
     
             $data['image'] = $newName;
         }
@@ -218,7 +243,7 @@ class ApiController extends Controller
         $query->update();
 
         $message = 'Category Updated';
-        return $this->respondCreated($message, 201);
+        return $this->respond(['message' => $message], 200);
     }
 
     public function add_product()
@@ -256,15 +281,35 @@ class ApiController extends Controller
 
             $file = $this->request->getFile('image');
             $newName = $file->getRandomName();
-            // $file->move(WRITEPATH.'uploads', $newName);
-            $path = $file->store('products/', $newName);
+            $path = $file->move(FCPATH.'/uploads/products/', $newName);
 
             $data['image'] = $newName;
             
             $db->table('products')->insert($data);
 
             $message = 'Product Created';
-            return $this->respondCreated($message, 201);
+            return $this->respond(['message' => $message], 200);
+        }
+    }
+
+    public function get_all_products()
+    {
+        $db      = \Config\Database::connect();
+        $query = $db->table('categories')->select('id, long_id, name')->orderby('name', 'ASC')->get();
+        $categories = $query->getResult();
+        for ($i=0; $i < count($categories); $i++) { 
+            $product_query = $db->table('products')->select('long_id, name, slug, image, price')->where('category_id', $categories[$i]->id)->orderby('name', 'ASC')->get();
+            $products = $product_query->getResult();
+            $categories[$i]->products = $products;
+        }
+        if(is_null($categories))
+        {
+            $message = 'No Category Found.';
+            return $this->fail($message, 400);
+        }
+        else
+        {
+            return $this->respond($categories, 200);
         }
     }
 

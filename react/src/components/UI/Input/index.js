@@ -1,15 +1,26 @@
+import { TextField } from '@material-ui/core';
 import React from 'react';
-import { Form } from 'react-bootstrap';
 
-const Input = ({label, type, placeholder, errorMessage, value, name, handleChange}) => {
+const Input = ({variant, margin, label, type, placeholder, errorMessage, value, name, handleChange, multiline, rows, required, fullWidth, id, autoFocus}) => {
+    
     return (
-        <Form.Group controlId={name}>
-            <Form.Label>{label}</Form.Label>
-            <Form.Control name={name} type={type} placeholder={placeholder} value={value} onChange={handleChange} />
-            <Form.Text className="text-muted">
-            {errorMessage}
-            </Form.Text>
-        </Form.Group>
+        <TextField
+            id={id}
+            label={label}
+            margin={margin}
+            type={type}
+            value={value}
+            name={name}
+            helperText={errorMessage}
+            placeholder={placeholder}
+            onChange={handleChange}
+            variant={variant}
+            required={required}
+            fullWidth={fullWidth}
+            autoFocus={autoFocus}
+            multiline={multiline}
+            rows={rows}
+        />
     )
 }
 

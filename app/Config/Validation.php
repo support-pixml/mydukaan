@@ -98,12 +98,12 @@ class Validation
 								'min_length' => '{field} must be {param} or more characters'
 							]
 						],
-        'image'        => [
-							'rules'  => 'uploaded[image]|max_size[image,1024]',
-							'errors' => [
-								'max_size' => 'Image size should be < 1 MB.',
-							]
-						]
+        // 'image'        => [
+		// 					'rules'  => 'max_size[image,1024]',
+		// 					'errors' => [
+		// 						'max_size' => 'Image size should be < 1 MB.',
+		// 					]
+		// 				]
     ];
 
 	public $update_category = [

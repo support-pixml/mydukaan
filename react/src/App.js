@@ -10,6 +10,7 @@ import Signin from './containers/SignIn';
 import Signup from './containers/SignUp';
 import rootReducer from './reducers';
 import thunk from 'redux-thunk';
+import AddProduct from './containers/Products/addProduct';
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
@@ -23,6 +24,7 @@ function App() {
                 <Route path="/signin" component={Signin} />
                 <Route path="/signup" component={Signup} />
                 <Route path="/categories" component={Categories} />
+                <Route path="/add-product" component={AddProduct} />
             </Switch>
         </Router>
     </div>

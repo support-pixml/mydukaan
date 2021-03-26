@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import logo from '../../images/logo-dark.png';
-import { AppBar, Badge, Button, fade, IconButton, InputBase, makeStyles, Menu, MenuItem, Toolbar, Typography } from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
-import SearchIcon from '@material-ui/icons/Search';
+import { AppBar, Backdrop, Badge, Button, Fade, IconButton, makeStyles, Menu, MenuItem, Modal, Toolbar } from '@material-ui/core';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import LocalMallOutlinedIcon from '@material-ui/icons/LocalMallOutlined';
 import SettingsIcon from '@material-ui/icons/Settings';
+import AddCategory from '../../containers/Categories/addCategory';
 
 const useStyles = makeStyles((theme) => ({
     grow: {
@@ -35,22 +34,32 @@ const useStyles = makeStyles((theme) => ({
         display: 'none',
         },
     },
+    modal: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    paper: {
+        backgroundColor: theme.palette.background.paper,
+        border: '2px solid #000',
+        boxShadow: theme.shadows[5],
+        padding: theme.spacing(2, 4, 3),
+    },
 }));
 
 const Header = () => {
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = useState(null);
-    const [anchorEl1, setAnchorEl1] = useState(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
+    const [open, setOpen] = useState(false);
+    const [categoryOpen, setCategoryOpen] = useState(false);
+    const [productOpen, setProductOpen] = useState(false);
 
     const isMenuOpen = Boolean(anchorEl);
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
     const handleProfileMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
-    };
-    const handleSettingMenuOpen = (event) => {
-        setAnchorEl1(event.currentTarget);
     };
 
     const handleMobileMenuClose = () => {
@@ -64,6 +73,30 @@ const Header = () => {
 
     const handleMobileMenuOpen = (event) => {
         setMobileMoreAnchorEl(event.currentTarget);
+    };
+
+    const handleOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    const handleCategoryOpen = () => {
+        setCategoryOpen(true);
+    };
+
+    const handleCategoryClose = () => {
+        setCategoryOpen(false);
+    };
+
+    const handleProductOpen = () => {
+        setProductOpen(true);
+    };
+
+    const handleProductClose = () => {
+        setProductOpen(false);
     };
 
     const menuId = 'primary-search-account-menu';
@@ -85,7 +118,7 @@ const Header = () => {
     const settingMenuId = 'primary-setting-menu';
     const renderSettingMenu = (
         <Menu
-            anchorEl={anchorEl1}
+            anchorEl={anchorEl}
             anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
             id={settingMenuId}
             keepMounted
@@ -110,12 +143,14 @@ const Header = () => {
             onClose={handleMobileMenuClose}
         >
         <MenuItem>
-            <IconButton aria-label="show 11 new notifications" color="inherit">
-            <Badge badgeContent={11} color="secondary">
-                <NotificationsIcon />
-            </Badge>
+            <IconButton color="inherit" onClick={handleProfileMenuOpen}
+                aria-label="setting"
+                aria-controls={settingMenuId}
+                aria-haspopup="true"
+                className={classes.button}>
+                <SettingsIcon />
             </IconButton>
-            <p>Notifications</p>
+            <p>Settings</p>
         </MenuItem>
         <MenuItem>
             <IconButton aria-label="show 11 new notifications" color="inherit">
@@ -139,18 +174,15 @@ const Header = () => {
         </Menu>
     );
 
+    const categoryModal = (
+        <AddCategory handleClose={handleCategoryClose} open={categoryOpen} />
+    )
+    
+
     return (
         <div className={classes.grow}>
         <AppBar position="static">
             <Toolbar>
-            <IconButton
-                edge="start"
-                className={classes.menuButton}
-                color="inherit"
-                aria-label="open drawer"
-            >
-                <MenuIcon />
-            </IconButton>
             <Link to="/" className="">
                 <img className="" src={logo} alt="Logo" height="50" />
             </Link>
@@ -166,12 +198,30 @@ const Header = () => {
                         <LocalMallOutlinedIcon />
                     </Badge>
                 </IconButton>
-                <IconButton color="inherit" onClick={handleSettingMenuOpen}
+                <IconButton color="inherit" onClick={handleProfileMenuOpen}
+                aria-label="setting"
                     aria-controls={settingMenuId}
                     aria-haspopup="true"
                     className={classes.button}>
                     <SettingsIcon />
                 </IconButton>
+                <Link
+                    color="inherit"
+                    className="btn-link text-white text-uppercase pt-2"
+                    to="/add-product"
+                >
+                    Add Product
+                </Link>
+                <Button
+                    color="inherit"
+                    aria-label="account of current user"
+                    aria-controls={menuId}
+                    aria-haspopup="true"
+                    className={classes.button}
+                    onClick={handleCategoryOpen}
+                >
+                    Add Category
+                </Button>
                 <Button
                     color="inherit"
                     aria-label="account of current user"
@@ -198,8 +248,8 @@ const Header = () => {
             </Toolbar>
         </AppBar>
         {renderMobileMenu}
-        {renderSettingMenu}
         {renderMenu}
+        {categoryModal}
         </div>
     );
 }

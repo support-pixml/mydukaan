@@ -22,9 +22,9 @@ const Categories = () => {
             </Row>
             <Row>
                 {categories.map((category) => (
-                    <Col className="pt-3" md={{span:3}} key={category.id}>
+                    <Col className="pt-3" md={{span:3}} xs={{span:4}} key={category.id}>
                         <Image src={`/uploads/categories/${category.image}`} alt={category.name} width="100%" rounded />
-                        <Typography variant="h1" component="h2">
+                        <Typography variant="h5" component="h3">
                             {category.name}
                         </Typography>
                     </Col>

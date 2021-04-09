@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../../images/logo-dark.png';
-import { AppBar, Backdrop, Badge, Button, Fade, IconButton, makeStyles, Menu, MenuItem, Modal, Toolbar } from '@material-ui/core';
+import { AppBar, Badge, Button, Divider, IconButton, List, ListItem, ListItemIcon, ListItemText, makeStyles, Menu, MenuItem, SwipeableDrawer, Toolbar } from '@material-ui/core';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import LocalMallOutlinedIcon from '@material-ui/icons/LocalMallOutlined';
 import SettingsIcon from '@material-ui/icons/Settings';
 import AddCategory from '../../containers/Categories/addCategory';
+import { useDispatch, useSelector } from 'react-redux';
+import { isUserLoggedIn, signout } from '../../actions/auth';
+import { AddBox, ListTwoTone } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme) => ({
     grow: {
@@ -45,6 +48,12 @@ const useStyles = makeStyles((theme) => ({
         boxShadow: theme.shadows[5],
         padding: theme.spacing(2, 4, 3),
     },
+    list: {
+        width: 250,
+    },
+    fullList: {
+        width: 'auto',
+    },
 }));
 
 const Header = () => {
@@ -53,7 +62,20 @@ const Header = () => {
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
     const [open, setOpen] = useState(false);
     const [categoryOpen, setCategoryOpen] = useState(false);
-    const [productOpen, setProductOpen] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    const auth = useSelector(state => state.auth.authData);
+
+    const cartItems = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : [];
+    console.log(cartItems);
+    const dispatch = useDispatch();
+    useEffect(() => {
+        if(!auth?.user)
+        {
+            dispatch(isUserLoggedIn());
+        }
+    }, []);
+    
 
     const isMenuOpen = Boolean(anchorEl);
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -91,13 +113,19 @@ const Header = () => {
         setCategoryOpen(false);
     };
 
-    const handleProductOpen = () => {
-        setProductOpen(true);
+    const handleSidebarOpen = () => {
+        setSidebarOpen(true);
     };
 
-    const handleProductClose = () => {
-        setProductOpen(false);
+    const handleSidebarClose = () => {
+        setSidebarOpen(false);
     };
+
+    const logout = () => {
+        dispatch(signout());
+    }
+
+    const pathname = window.location.pathname;
 
     const menuId = 'primary-search-account-menu';
     const renderMenu = (
@@ -115,19 +143,17 @@ const Header = () => {
         </Menu> 
     );
 
-    const settingMenuId = 'primary-setting-menu';
-    const renderSettingMenu = (
+    const renderAuthMenu = (
         <Menu
             anchorEl={anchorEl}
             anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            id={settingMenuId}
+            id={menuId}
             keepMounted
             transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             open={isMenuOpen}
             onClose={handleMenuClose}
             >
-            <MenuItem><Link to="/add-product" className="" color="inherit">Add Product</Link></MenuItem>
-            <MenuItem><Link to="/add-category" className="" color="inherit">Add Category</Link></MenuItem>
+            <MenuItem><li className="" color="inherit"><span onClick={logout}>Sign Out</span></li></MenuItem>
         </Menu> 
     );
 
@@ -143,9 +169,8 @@ const Header = () => {
             onClose={handleMobileMenuClose}
         >
         <MenuItem>
-            <IconButton color="inherit" onClick={handleProfileMenuOpen}
+            <IconButton color="inherit" onClick={handleSidebarOpen}
                 aria-label="setting"
-                aria-controls={settingMenuId}
                 aria-haspopup="true"
                 className={classes.button}>
                 <SettingsIcon />
@@ -154,7 +179,7 @@ const Header = () => {
         </MenuItem>
         <MenuItem>
             <IconButton aria-label="show 11 new notifications" color="inherit">
-            <Badge badgeContent={11} color="secondary">
+            <Badge badgeContent={cartItems.length} color="secondary">
                 <LocalMallOutlinedIcon />
             </Badge>
             </IconButton>
@@ -176,52 +201,88 @@ const Header = () => {
 
     const categoryModal = (
         <AddCategory handleClose={handleCategoryClose} open={categoryOpen} />
-    )
-    
+    )   
+
+    const list = (
+        <div
+            className={classes.list}
+            role="presentation"
+            onClick={handleSidebarClose}
+            onKeyDown={handleSidebarClose}
+        >
+            <List>
+                <ListItem>
+                    <Link to="/add-product" className="btn btn-block">
+                        <AddBox /> Add Product
+                    </Link>
+                </ListItem>
+                <ListItem>
+                    <Link to="/add-product" className="btn btn-block">
+                        <ListTwoTone /> Products
+                    </Link>
+                </ListItem>
+                <ListItem>
+                    <Button
+                        aria-haspopup="true"
+                        className="btn btn-block"
+                        onClick={handleCategoryOpen}
+                    >
+                        <AddBox />&nbsp;&nbsp;Add Category
+                    </Button>
+                </ListItem>
+                <ListItem>
+                    <Link to="/show-categories" className="btn btn-block">
+                        <ListTwoTone /> Categories
+                    </Link>
+                </ListItem>
+            </List>
+            <Divider />
+            <List>
+                <ListItem button>
+                    <ListItemIcon></ListItemIcon>
+                    <ListItemText primary="Orders" />
+                </ListItem>
+                <ListItem button>
+                    <ListItemIcon></ListItemIcon>
+                    <ListItemText primary="Users" />
+                </ListItem>
+            </List>
+        </div>
+    );
+
+    const sidebar = ( 
+        <SwipeableDrawer
+            anchor="left"
+            onClose={handleSidebarClose}
+            onOpen={handleSidebarOpen}
+            open={sidebarOpen}
+        >
+            {list}
+        </SwipeableDrawer>
+    );
 
     return (
         <div className={classes.grow}>
-        <AppBar position="static">
+        <AppBar position="fixed">
             <Toolbar>
             <Link to="/" className="">
                 <img className="" src={logo} alt="Logo" height="50" />
             </Link>
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
-                <IconButton aria-label="show 17 new notifications" color="inherit">
-                    <Badge badgeContent={17} color="secondary">
-                        <NotificationsIcon />
-                    </Badge>
-                </IconButton>
-                <IconButton aria-label="show 17 new notifications" color="inherit">
-                    <Badge badgeContent={17} color="secondary">
+                {pathname === '/signin' || pathname === '/signup' ? 
+                null :  <>
+                <IconButton aria-label="show new notifications" color="inherit">
+                    <Badge badgeContent={cartItems.length} color="secondary">
                         <LocalMallOutlinedIcon />
                     </Badge>
                 </IconButton>
-                <IconButton color="inherit" onClick={handleProfileMenuOpen}
-                aria-label="setting"
-                    aria-controls={settingMenuId}
+                <IconButton color="inherit" onClick={handleSidebarOpen}
+                    aria-label="setting"
                     aria-haspopup="true"
                     className={classes.button}>
                     <SettingsIcon />
                 </IconButton>
-                <Link
-                    color="inherit"
-                    className="btn-link text-white text-uppercase pt-2"
-                    to="/add-product"
-                >
-                    Add Product
-                </Link>
-                <Button
-                    color="inherit"
-                    aria-label="account of current user"
-                    aria-controls={menuId}
-                    aria-haspopup="true"
-                    className={classes.button}
-                    onClick={handleCategoryOpen}
-                >
-                    Add Category
-                </Button>
                 <Button
                     color="inherit"
                     aria-label="account of current user"
@@ -232,7 +293,8 @@ const Header = () => {
                     endIcon={<AccountCircle />}
                 >
                     Profile
-                </Button>
+                </Button></>
+                }
             </div>
             <div className={classes.sectionMobile}>
                 <IconButton
@@ -248,8 +310,9 @@ const Header = () => {
             </Toolbar>
         </AppBar>
         {renderMobileMenu}
-        {renderMenu}
+        {auth?.user ? renderAuthMenu : renderMenu}
         {categoryModal}
+        {sidebar}
         </div>
     );
 }

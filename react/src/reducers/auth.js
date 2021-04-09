@@ -1,15 +1,19 @@
-import * as actionType from '../actions/constants';
+import {authConstants} from '../actions/constants';
 
 const authReducer = (state = {authData: null}, action) => {
     switch(action.type) {
-        case actionType.SIGN_IN:
-            localStorage.setItem('profile', JSON.stringify({...action?.data}));
+        case authConstants.LOGIN_REQUEST:
+            localStorage.setItem('access_token', action?.data.access_token);
+            localStorage.setItem('user', JSON.stringify({...action?.data.user}));
             return {...state, authData: action?.data}
-        case actionType.SIGN_UP:
-            return {...state, authData: action?.data}
-        case actionType.LOG_OUT:
+        case authConstants.LOGOUT_REQUEST:
+            return {...state};
+        case authConstants.LOGOUT_SUCCESS:
             localStorage.clear();
             return {...state, authData: null}
+        case authConstants.LOGOUT_FAILURE:
+            localStorage.clear();
+            return {...state, authData: action.payload.error};
         default:
             return state;
     }

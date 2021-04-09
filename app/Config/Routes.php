@@ -37,8 +37,8 @@ $routes->setAutoRoute(true);
 // route since we don't have to scan directories.
 $routes->get('/', 'Home::index');
 // $routes->get('/api', 'ApiController::index');
-$routes->post('/api/signup', 'ApiController::signup');
-$routes->post('/api/signin', 'ApiController::signin');
+$routes->post('/signup', 'ApiController::signup');
+$routes->post('/signin', 'ApiController::signin');
 $routes->get('/api/get_users', 'ApiController::get_users');
 $routes->get('/api/get_categories', 'ApiController::get_categories');
 $routes->post('/api/add_category', 'ApiController::add_category');

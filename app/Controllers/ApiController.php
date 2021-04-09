@@ -32,11 +32,6 @@ class ApiController extends Controller
         // $db      = \Config\Database::connect();
     }
 
-    // public function index()
-    // {
-    //     echo 'hello';
-    // }
-
     public function signup()
     {
         $validation =  \Config\Services::validation();
@@ -93,6 +88,12 @@ class ApiController extends Controller
         }
     }
 
+    public function logout()
+    {
+        $message = 'Sign Out Successfully!';
+        return $this->respond(['message' => $message], 200);
+    }
+
     private function getJWTForUser($user_data, int $responseCode = ResponseInterface::HTTP_OK)
     {
         try {
@@ -134,9 +135,9 @@ class ApiController extends Controller
     }
 
     public function get_categories()
-    {
+    {        
         $db      = \Config\Database::connect();
-        $query = $db->table('categories')->get();
+        $query = $db->table('categories')->orderby('name', 'ASC')->get();
         $categories = $query->getResult();
         if(is_null($categories))
         {
@@ -295,12 +296,19 @@ class ApiController extends Controller
     public function get_all_products()
     {
         $db      = \Config\Database::connect();
-        $query = $db->table('categories')->select('id, long_id, name')->orderby('name', 'ASC')->get();
+        $query = $db->table('categories')->select('id, long_id, slug, name')->orderby('name', 'ASC')->get();
         $categories = $query->getResult();
-        for ($i=0; $i < count($categories); $i++) { 
-            $product_query = $db->table('products')->select('long_id, name, slug, image, price')->where('category_id', $categories[$i]->id)->orderby('name', 'ASC')->get();
+        foreach($categories as $category)
+        {
+            $product_query = $db->table('products')->select('long_id, name, slug, image, price, stock')->where('category_id', $category->id)->orderby('name', 'ASC')->get();
             $products = $product_query->getResult();
-            $categories[$i]->products = $products;
+            if(!$products)
+                unset($category);
+            else
+            {
+                $category->products = $products;
+                $category->product_count = count($products);
+            }
         }
         if(is_null($categories))
         {

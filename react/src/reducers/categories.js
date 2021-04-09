@@ -1,12 +1,23 @@
-import { CREATE, FETCH_ALL } from "../actions/constants";
+import { categoryConstants, CREATE } from "../actions/constants";
 
-export default (categories = [], action) => {
+const initState = {
+    categories: [],
+    loading: false,
+    error: null
+};
+
+export default (state = initState, action) => {
     switch (action.type) {
-        case FETCH_ALL:
-            return action.payload;    3
-        case CREATE:
-            return [...categories, action.payload];
+        case categoryConstants.CATEGORY_SUCCESS:
+            return state = {
+                ...state,
+                categories: action.payload.categories
+            }  
+        // case FETCH_ALL:
+        //     return action.payload;   
+        // case CREATE:
+        //     return [...categories, action.payload];
         default:
-            return categories;
+            return state;
     }
 }

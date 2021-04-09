@@ -30,12 +30,6 @@ class Filters extends BaseConfig
 	 * @var array
 	 */
 	public $globals = [
-		'auth' => [
-			'before' => [
-				'client/*',
-				'client'
-			],
-		],
 		'after'  => [
 			'toolbar',
 			// 'honeypot',
@@ -62,5 +56,12 @@ class Filters extends BaseConfig
 	 *
 	 * @var array
 	 */
-	public $filters = [];
+	public $filters = [
+		'auth' => [
+			'before' => [
+				'api/*',
+				'api'
+			],
+		]
+	];
 }

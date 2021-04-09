@@ -18,7 +18,10 @@ function validateJWTFromRequest(string $encodedToken)
     $key = Services::getSecretKey();
     $decodedToken = JWT::decode($encodedToken, $key, ['HS256']);
     $userModel = new UserModel();
-    $userModel->findUserByEmailAddress($decodedToken->email);
+    $query = $userModel->where('email', $decodedToken->email)->get();
+    $result = $query->getRow();
+    if (!$result) 
+            throw new Exception('User does not exist for specified email address');
 }
 
 function getSignedJWTForUser(string $email)
@@ -29,7 +32,7 @@ function getSignedJWTForUser(string $email)
     $payload = [
         'email' => $email,
         'iat' => $issuedAtTime,
-        'exp' => $tokenExpiration,
+        'exp' => $tokenExpiration*1000,
     ];
 
     $jwt = JWT::encode($payload, Services::getSecretKey());

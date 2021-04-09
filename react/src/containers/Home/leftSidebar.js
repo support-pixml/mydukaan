@@ -9,6 +9,13 @@ const useStyles = makeStyles((theme) => ({
     root: {
         flexGrow: 1,
         maxWidth: 752,
+        // position: -webkit-sticky,
+        position: 'sticky',
+        height: '100%',
+        top: '90px',
+        maxHeight: '-webkit-calc(100vh - 90px)',
+        maxHeight: 'calc(100vh - 90px)',
+        overFlow: 'hidden',
     },
     demo: {
         backgroundColor: theme.palette.background.default,
@@ -17,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 
 const leftSidebar = () => {
     const classes = useStyles();
-    const categories = useSelector((state) => state.categories);
+    const categories = useSelector((state) => state.category.categories);
 
     return (
         <div className={classes.root}>
@@ -25,13 +32,13 @@ const leftSidebar = () => {
                 <Grid item xs={12} md={12}>
                 <div className={classes.demo}>
                     <List>
-                    {categories.map((category) => (
+                        {categories.map((category) => (
                         <ListItem key={category.long_id}>
-                            <Link to={`#${category.slug}`}>
+                            <Link to={`#${category.slug}`} spy={true} smooth={true}>
                                 {category.name}
                             </Link>
                         </ListItem>
-                    ))}
+                        ))}
                         <ListItem>
                             <Link
                                 to="/categories"

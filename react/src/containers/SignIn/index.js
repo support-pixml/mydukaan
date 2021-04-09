@@ -4,7 +4,7 @@ import Input from "../../components/UI/Input";
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import { Link, Redirect } from 'react-router-dom';
 import { signin } from '../../actions/auth';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 
 const initialState = {
     email: '',
@@ -39,7 +39,8 @@ const Signin = () => {
     // const [error, setError] = useState('');
     const dispatch = useDispatch();
 
-    const user = localStorage.getItem('profile');
+    const auth = useSelector(state => state.auth.authData);
+    console.log(auth);
 
     const userLogin = (e) => {
         e.preventDefault();
@@ -50,7 +51,7 @@ const Signin = () => {
         setFormData({...formData, [e.target.name]: e.target.value});
     }
 
-    if(user)
+    if(auth?.user?.name != null)
     {
         return <Redirect to={`/`} />
     }

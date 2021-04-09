@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use Exception;
 
 class UserModel extends Model
 {
@@ -25,4 +26,17 @@ class UserModel extends Model
     protected $validationRules    = [];
     protected $validationMessages = [];
     protected $skipValidation     = false;
+
+    // public function findUserByEmailAddress(string $emailAddress)
+    // {
+    //     $user = $this
+    //         ->asArray()
+    //         ->where(['email' => $emailAddress])
+    //         ->first();
+
+    //     if (!$user) 
+    //         throw new Exception('User does not exist for specified email address');
+
+    //     return $user;
+    // }
 }

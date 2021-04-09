@@ -11,7 +11,7 @@ const Categories = () => {
         dispatch(getCategories());
     }, [dispatch]);
 
-    const categories = useSelector((state) => state.categories);
+    const categories = useSelector((state) => state.category.categories);
 
     return (
         <Container className="mt-3">

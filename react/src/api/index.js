@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API = axios.create({baseURL: 'http://localhost:8080'});
+// const API = axios.create({baseURL: 'http://technofab.pixml.in/'});
+const API = axios.create({baseURL: 'http://localhost:80'});
 
 API.interceptors.request.use((req) => {
     if(localStorage.getItem('access_token'))
@@ -20,3 +21,6 @@ export const createCategory = (newCategory) => API.post('/api/add_category', new
 
 export const createProduct = (newProduct) => API.post('/api/add_product', newProduct);
 export const fetchAllProducts = () => API.get('/api/get_all_products');
+export const fetchProducts = () => API.get('/api/get_products');
+
+export const placeOrder = (orderData) => API.post('/api/place_order', orderData);

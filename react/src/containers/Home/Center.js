@@ -1,9 +1,9 @@
 import React from 'react';
 import ProductCard from './ProductCard';
 
-const Center = () => {
+const Center = ({cartItems}) => {
     return (
-        <ProductCard />
+        <ProductCard cartItems={cartItems} />
     )
 }
 

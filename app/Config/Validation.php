@@ -159,4 +159,47 @@ class Validation
 						],
     ];
 
+	public $order = [
+        'cust_name'		   => [
+							'rules'  => 'required|min_length[3]',
+							'errors' => [
+								'required' => 'Please enter proper name.',
+								'min_length' => '{field} must be {param} or more characters'
+							]
+						],
+		'image'        => [
+							'rules'  => 'uploaded[image]|max_size[image,1024]',
+							'errors' => [
+								'max_size' => 'Image size should be < 1 MB.',
+							]
+						],
+		'category_id'		   => [
+							'rules'  => 'required|numeric',
+							'errors' => [
+								'required' => 'Please enter proper {field}.',
+								'numeric' => '{field} must be {value}'
+							]
+						],
+		'price'		   => [
+							'rules'  => 'required|numeric',
+							'errors' => [
+								'required' => 'Please enter proper {field}.',
+								'min_length' => '{field} must be {value}'
+							]
+						],
+		'stock'		   => [
+							'rules'  => 'required|numeric',
+							'errors' => [
+								'required' => 'Please enter proper {field}.',
+								'min_length' => '{field} must be {value}'
+							]
+						],
+		'description'		   => [
+							'rules'  => 'required',
+							'errors' => [
+								'required' => 'Please enter proper {field}.',
+							]
+						],
+    ];
+
 }

@@ -1,4 +1,4 @@
-import { Button, Container, CssBaseline, FormControl, Grid, InputLabel, makeStyles, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextareaAutosize, Typography } from '@material-ui/core';
+import { Avatar, Button, Container, CssBaseline, FormControl, Grid, InputLabel, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import Input from '../../components/UI/Input';
@@ -40,6 +40,7 @@ const ShowCategories = () => {
     }, [dispatch]);
 
     const categories = useSelector((state) => state.category.categories);
+    console.log(categories);
 
     const submitProduct = (e) => {
         e.preventDefault();
@@ -48,18 +49,6 @@ const ShowCategories = () => {
         // dispatch(addProduct(formData));
     }
 
-    function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-    }
-
-    const rows = [
-    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-    createData('Cupcake', 305, 3.7, 67, 4.3),
-    createData('Gingerbread', 356, 16.0, 49, 3.9),
-    ];
-
     const renderCategoriesTable = () => {
         return (
             <TableContainer component={Paper}>
@@ -67,20 +56,23 @@ const ShowCategories = () => {
                     <TableHead>
                     <TableRow>
                         <TableCell>Category Name</TableCell>
-                        <TableCell align="right">Image</TableCell>
+                        <TableCell>Image</TableCell>
                         <TableCell align="right">Action</TableCell>
                     </TableRow>
                     </TableHead>
                     <TableBody>
-                    {rows.map((row) => (
-                        <TableRow key={row.name}>
-                        <TableCell component="th" scope="row">
-                            {row.name}
-                        </TableCell>
-                        <TableCell align="right">{row.calories}</TableCell>
-                        <TableCell align="right">{row.fat}</TableCell>
+                    {categories.map((category, index) => {
+                        return (
+                        <TableRow key={index}>
+                            <TableCell component="td" scope="row">
+                                {category.name}
+                            </TableCell>
+                            <TableCell component="td" scope="row">
+                                <Avatar alt={category.name} variant="rounded" src={`/uploads/categories/${category.image}`} />
+                            </TableCell>
                         </TableRow>
-                    ))}
+                        )
+                    })}
                     </TableBody>
                 </Table>
             </TableContainer>

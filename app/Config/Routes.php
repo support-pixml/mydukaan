@@ -45,6 +45,8 @@ $routes->post('/api/add_category', 'ApiController::add_category');
 $routes->post('/api/update_category/(:alphanum)', 'ApiController::update_category/$1');
 $routes->post('/api/add_product', 'ApiController::add_product');
 $routes->get('/api/get_all_products', 'ApiController::get_all_products');
+$routes->post('/api/place_order', 'ApiController::place_order');
+$routes->get('/api/get_products', 'ApiController::get_products');
 
 /*
  * --------------------------------------------------------------------

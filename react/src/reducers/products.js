@@ -24,6 +24,23 @@ export default (state = initState, action) => {
                 loading: false,
                 products: action.payload
             }
+        case productConstants.GET_PRODUCT_REQUEST:
+            return state = {
+                ...state,
+                loading: true
+            }
+        case productConstants.GET_PRODUCT_SUCCESS:
+            return state = {
+                ...state,
+                loading: false,
+                products: action.payload.products
+            }
+        case productConstants.GET_PRODUCT_FAILURE:
+            return state = {
+                ...state,
+                loading: false,
+                products: action.payload
+            }
         default:
             return state;
     }

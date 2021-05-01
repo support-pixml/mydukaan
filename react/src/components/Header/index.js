@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import logo from '../../images/logo-dark.png';
 import { AppBar, Badge, Button, Divider, IconButton, List, ListItem, ListItemIcon, ListItemText, makeStyles, Menu, MenuItem, SwipeableDrawer, Toolbar } from '@material-ui/core';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import LocalMallOutlinedIcon from '@material-ui/icons/LocalMallOutlined';
 import SettingsIcon from '@material-ui/icons/Settings';
@@ -66,8 +65,8 @@ const Header = () => {
 
     const auth = useSelector(state => state.auth.authData);
 
-    const cartItems = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : [];
-    console.log(cartItems);
+    // const cartCount = useSelector((state) => state.cart.itemCount);
+
     const dispatch = useDispatch();
     useEffect(() => {
         if(!auth?.user)
@@ -75,7 +74,6 @@ const Header = () => {
             dispatch(isUserLoggedIn());
         }
     }, []);
-    
 
     const isMenuOpen = Boolean(anchorEl);
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -177,14 +175,14 @@ const Header = () => {
             </IconButton>
             <p>Settings</p>
         </MenuItem>
-        <MenuItem>
+        {/* <MenuItem>
             <IconButton aria-label="show 11 new notifications" color="inherit">
-            <Badge badgeContent={cartItems.length} color="secondary">
+            <Badge badgeContent={cartCount} color="secondary">
                 <LocalMallOutlinedIcon />
             </Badge>
             </IconButton>
             <p>Bag</p>
-        </MenuItem>
+        </MenuItem> */}
         <MenuItem onClick={handleProfileMenuOpen}>
             <IconButton
             aria-label="account of current user"
@@ -272,11 +270,11 @@ const Header = () => {
             <div className={classes.sectionDesktop}>
                 {pathname === '/signin' || pathname === '/signup' ? 
                 null :  <>
-                <IconButton aria-label="show new notifications" color="inherit">
-                    <Badge badgeContent={cartItems.length} color="secondary">
+                {/* <IconButton aria-label="show new notifications" color="inherit">
+                    <Badge badgeContent={cartCount} color="secondary">
                         <LocalMallOutlinedIcon />
                     </Badge>
-                </IconButton>
+                </IconButton> */}
                 <IconButton color="inherit" onClick={handleSidebarOpen}
                     aria-label="setting"
                     aria-haspopup="true"

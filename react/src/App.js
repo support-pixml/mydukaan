@@ -14,6 +14,7 @@ import AddProduct from './containers/Products/addProduct';
 import PrivateRoute from './components/HOC/PrivateRoute';
 import { isUserLoggedIn } from './actions/auth';
 import ShowCategories from './containers/Categories/Categories';
+import CheckOut from './containers/Checkout';
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
@@ -39,6 +40,7 @@ function App() {
                 <PrivateRoute path="/categories" component={Categories} />
                 <PrivateRoute path="/add-product" component={AddProduct} />
                 <PrivateRoute path="/show-categories" component={ShowCategories} />
+                <PrivateRoute path="/checkout" component={CheckOut} />
 
                 <Route path="/signin" component={Signin} />
                 <Route path="/signup" component={Signup} />

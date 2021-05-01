@@ -1,5 +1,6 @@
 import { CartReducer, sumItems } from '../reducers/cart';
 import { cartConstants } from './constants';
+import * as api from '../api';
 
 const storage = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : [];
 const initialState = { cartItems: storage, ...sumItems(storage), checkout: false };
@@ -22,6 +23,17 @@ export const addProduct = (payload) => async (dispatch) => {
     });
 }
 
+export const increaseOption = (payload) => async (dispatch) => {
+    dispatch({
+        type: cartConstants.INCREASE_OPTION, payload
+    });
+} 
+export const addProductOption = (payload) => async (dispatch) => {
+    dispatch({
+        type: cartConstants.ADD_OPTION, payload
+    });
+} 
+
 export const removeProduct = (payload) => async (dispatch) => {
     dispatch({
         type: cartConstants.REMOVE_ITEM, payload
@@ -34,9 +46,20 @@ export const clearCart = () => async (dispatch) => {
     });
 }
 
-export const checkOut = () => async (dispatch) => {
+export const checkOut = (orderData) => async (dispatch) => {
     dispatch({
-        type: cartConstants.CHECKOUT,
+        type: cartConstants.CHECKOUT_REQUEST,
     });
+    try {
+        console.log('place_order', orderData);
+        const {data} = await api.placeOrder(orderData);
+        dispatch({ type: cartConstants.CHECKOUT_SUCCESS, payload: data });
+    } catch (error) {
+        console.log(error);
+        dispatch({
+            type: cartConstants.CHECKOUT_FAILURE,
+            payload: error
+        });
+    }
 }
 

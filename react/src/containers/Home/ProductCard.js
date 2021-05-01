@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
     },
 })); 
 
-const ProductCard = () => {
+const ProductCard = ({cartItems}) => {
     const classes = useStyles();
     const dispatch = useDispatch();
 
@@ -32,9 +32,7 @@ const ProductCard = () => {
         dispatch(getAllProducts());
     }, [dispatch]);
 
-    const cat_products = useSelector((state) => state.product.products);
-
-    const cartItems = localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : [];
+    const cat_products = useSelector((state) => state.product.products);  
 
     return (
         <div className={classes.root}>
@@ -54,15 +52,22 @@ const ProductCard = () => {
                                 </ListItemAvatar>
                                 <ListItemText className={classes.product_area}
                                     primary={product.name}
-                                    secondary={
+                                    secondary={                                   
                                     <Fragment>
                                         <Typography
-                                            component="span"
+                                            component="p"
                                             variant="body2"
                                             className={classes.inline}
                                             color="textPrimary"
                                         >
                                             &#8377; {product.price}
+                                        </Typography>
+                                        <Typography
+                                            component="p"
+                                            variant="body2"
+                                            color="textPrimary"
+                                        >
+                                            Stock: {product.stock}
                                         </Typography>
                                         <CartButton product={product} cartItems={cartItems} />
                                     </Fragment>

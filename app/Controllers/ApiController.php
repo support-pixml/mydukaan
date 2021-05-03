@@ -375,28 +375,66 @@ class ApiController extends Controller
             $order_total = 0;    
 
             foreach($cart as $cart_item)
-            {
-                if(isset($cart_item->option_name))
-                {
-                    // $product_long_id = $cart_item->long_id;
-                    // $product_quantity = $cart_item->quantity;
-                    // $product_price = $cart_item->price;
+            {            
+                $product_long_id = $cart_item->long_id;
+                $product_quantity = $cart_item->quantity;
+                $product_price = $cart_item->price;
 
-                    // $check_product_stock_query = $db->table('products')->select('id, stock, price')->where('long_id', $product_long_id)->get();
-                    // $check_product_stock = $check_product_stock_query->getRow();
-                    // if(is_null($check_product_stock))
-                    // {
-                    //     $message = 'No Product Found.';
-                    //     return $this->fail($message, 400);
-                    // }
-                    // echo '<pre>'; print_r($check_product_stock); echo '</pre>';
+                $option_name = $cart_item->option_name;
+                $option_id = $cart_item->product_option_id;
+                    
+                if(isset($option_name))
+                {
+                    $query = $db->table('products')->where('long_id', $product_long_id)->get();
+                    $result = $query->getRow();
+                    if(!$result)
+                    {
+                        $message = 'Product not found.';
+                        return $this->fail($message, 400);
+                    }
+
+                    $product_id = $result->id;
+                    $product_name = $result->name;
+                    $check_product_option_stock_query = $db->table('product_options')->select('option_name, option_stock, option_price')->where('id', $option_id)->get();
+                    $check_product_option_stock = $check_product_option_stock_query->getRow();
+                    if(is_null($check_product_option_stock))
+                    {
+                        $message = 'No Product Option Found.';
+                        return $this->fail($message, 400);
+                    }
+                    else if($product_quantity <= $check_product_option_stock->option_stock)
+                    {
+                        $order_details = [
+                            'order_id' => $order_id,
+                            'product_id' => $product_id,
+                            'product_name' => $product_name,
+                            'option_name' => $check_product_option_stock->option_name,
+                            'product_price' => $check_product_option_stock->option_price,
+                            'quantity' => $product_quantity
+
+                        ];
+                        //insert order details
+                        $order_details_insert = $db->table('order_details')->insert($order_details);
+
+                        // subtract product stock
+                        $remaining_stock = $check_product_option_stock->option_stock - $product_quantity;
+                        
+                        $update_product_data = array('option_stock' => $remaining_stock);
+                        $subtract_query = $db->table('product_options');
+                        $subtract_query->set($update_product_data);
+                        $subtract_query->where('id', $option_id);
+                        $subtract_query->update();   
+
+                        $order_total = $order_total + ($product_price*$product_quantity);     
+                    }
+                    else
+                    {
+                        $message = 'Product Out of Stock.';
+                        return $this->fail($message, 400);
+                    }
                 }
                 else
                 {
-                    $product_long_id = $cart_item->long_id;
-                    $product_quantity = $cart_item->quantity;
-                    $product_price = $cart_item->price;
-
                     $check_product_stock_query = $db->table('products')->select('id, name, stock, price')->where('long_id', $product_long_id)->get();
                     $check_product_stock = $check_product_stock_query->getRow();
                     if(is_null($check_product_stock))
@@ -427,11 +465,11 @@ class ApiController extends Controller
                         $subtract_query->where('id', $check_product_stock->id);
                         $subtract_query->update();   
 
-                        // $order_total = $order_total + ($product_price*$product_quantity);                        
+                        $order_total = $order_total + ($product_price*$product_quantity);                        
                     }
                     else
                     {
-                        $message = 'Product Not Available.';
+                        $message = 'Product Out of Stock.';
                         return $this->fail($message, 400);
                     }
                 }

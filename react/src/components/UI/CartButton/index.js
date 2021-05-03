@@ -15,12 +15,6 @@ const CartButton = ({product, cartItems, option}) => {
             return !!cartItems.find(item => item.long_id === product.long_id && item.product_option_id === product.product_option_id);
     }
 
-    // const findProductInCart = cartItems.find(item => item.long_id === product.long_id);
-    // if(findProductInCart)
-    // {
-    //     setCounter(findProductInCart.quantity);
-    // }
-
     const handleIncrement = () => {
         let addedProd = Object.assign({}, product);
 

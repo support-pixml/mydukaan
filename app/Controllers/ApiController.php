@@ -311,7 +311,7 @@ class ApiController extends Controller
             {
                 foreach($products as $product)
                 {
-                    $product_option_query = $db->table('product_options')->select('id as product_option_id, product_id, option_name, option_stock, option_price, add_quantity')->where('product_id', $product->id)->get();
+                    $product_option_query = $db->table('product_options')->select('id as product_option_id, product_id, option_name, option_stock, option_price as price, add_quantity')->where('product_id', $product->id)->get();
                     $product_options = $product_option_query->getResult();
                     foreach($product_options as $option)
                     {
@@ -346,34 +346,98 @@ class ApiController extends Controller
         // }
         // else
         // {
-            $post = $this->request->getPost();
-            $cartItems = json_decode($post['cartItems']);
-            echo '<pre>'; print_r($cartItems); echo '</pre>';die;
+            $post = $this->request->getJSON();
+            echo '<pre>'; print_r($post); echo '</pre>';
             $long_id = random_string('alnum', 12);
 
             $db      = \Config\Database::connect();
 
             $data = [
                 'long_id' => $long_id,
-                'customer_name' => $post['customer_name'],
-                'customer_company' => $post['customer_company'],
-                'address' => $post['address'],
-                'customer_email' => $post['customer_email'],
-                'customer_phone' => $post['customer_phone'],
-                'city' => $post['city'],
-                'state' => $post['state'],
-                'country' => $post['country'],
-                'pincode' => $post['pincode'],
-                'order_total' => $post['order_total'],
-                'orderBy' => $post['order_by'],
-                'note' => $post['note']
+                'customer_name' => $post->customer_name,
+                'customer_company' => $post->company_name,
+                'address' => $post->address,
+                'customer_email' => $post->customer_email,
+                'customer_phone' => $post->customer_phone,
+                'city' => 'Surat',
+                'state' => 'Gujarat',
+                'country' => 'India',
+                'pincode' => 395009,
+                'order_total' => 0,
+                'orderBy' => '1',
+                'note' => $post->note
             ];
             
             $db->table('orders')->insert($data);
             $order_id = $db->insertID();           
-                        
 
-            $message = 'Product Created';
+            $cart = $post->cart;        
+            $order_total = 0;    
+
+            foreach($cart as $cart_item)
+            {
+                if(isset($cart_item->option_name))
+                {
+                    // $product_long_id = $cart_item->long_id;
+                    // $product_quantity = $cart_item->quantity;
+                    // $product_price = $cart_item->price;
+
+                    // $check_product_stock_query = $db->table('products')->select('id, stock, price')->where('long_id', $product_long_id)->get();
+                    // $check_product_stock = $check_product_stock_query->getRow();
+                    // if(is_null($check_product_stock))
+                    // {
+                    //     $message = 'No Product Found.';
+                    //     return $this->fail($message, 400);
+                    // }
+                    // echo '<pre>'; print_r($check_product_stock); echo '</pre>';
+                }
+                else
+                {
+                    $product_long_id = $cart_item->long_id;
+                    $product_quantity = $cart_item->quantity;
+                    $product_price = $cart_item->price;
+
+                    $check_product_stock_query = $db->table('products')->select('id, name, stock, price')->where('long_id', $product_long_id)->get();
+                    $check_product_stock = $check_product_stock_query->getRow();
+                    if(is_null($check_product_stock))
+                    {
+                        $message = 'No Product Found.';
+                        return $this->fail($message, 400);
+                    }
+                    else if($product_quantity <= $check_product_stock->stock)
+                    {
+                        $order_details = [
+                            'order_id' => $order_id,
+                            'product_id' => $check_product_stock->id,
+                            'product_name' => $check_product_stock->name,
+                            // 'option_name' => '',
+                            'product_price' => $check_product_stock->price,
+                            'quantity' => $product_quantity
+
+                        ];
+                        //insert order details
+                        $order_details_insert = $db->table('order_details')->insert($order_details);
+
+                        // subtract product stock
+                        $remaining_stock = $check_product_stock->stock - $product_quantity;
+                        
+                        $update_product_data = array('stock' => $remaining_stock);
+                        $subtract_query = $db->table('products');
+                        $subtract_query->set($update_product_data);
+                        $subtract_query->where('id', $check_product_stock->id);
+                        $subtract_query->update();   
+
+                        // $order_total = $order_total + ($product_price*$product_quantity);                        
+                    }
+                    else
+                    {
+                        $message = 'Product Not Available.';
+                        return $this->fail($message, 400);
+                    }
+                }
+            }
+
+            $message = 'Order Placed';
             return $this->respond(['message' => $message], 200);
         // }
     }

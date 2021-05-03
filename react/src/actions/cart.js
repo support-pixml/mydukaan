@@ -27,16 +27,29 @@ export const increaseOption = (payload) => async (dispatch) => {
     dispatch({
         type: cartConstants.INCREASE_OPTION, payload
     });
-} 
+}
+
 export const addProductOption = (payload) => async (dispatch) => {
     dispatch({
         type: cartConstants.ADD_OPTION, payload
     });
 } 
 
+export const decreaseOption = (payload) => async (dispatch) => {
+    dispatch({
+        type: cartConstants.DECREASE_OPTION, payload
+    });
+}
+
 export const removeProduct = (payload) => async (dispatch) => {
     dispatch({
         type: cartConstants.REMOVE_ITEM, payload
+    });
+}
+
+export const removeProductOption = (payload) => async (dispatch) => {
+    dispatch({
+        type: cartConstants.REMOVE_OPTION_ITEM, payload
     });
 }
 

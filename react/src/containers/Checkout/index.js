@@ -1,6 +1,7 @@
 import { Button, Container, CssBaseline, FormControl, Grid, makeStyles, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { checkOut } from '../../actions/cart';
 import Input from '../../components/UI/Input';
 
@@ -31,27 +32,20 @@ const CheckOut = () => {
     const classes = useStyles();
 
     const carts = useSelector((state) => state.cart);
-    console.log('cart', carts);
 
     const [checkoutData, setCheckoutData] = useState(initialState);
     const dispatch = useDispatch();
     
     const submitOrder = (e) => {
         e.preventDefault();
-        const formData = new FormData();
-        formData.append('customer_name', checkoutData.customer_name);
-        formData.append('customer_company', checkoutData.company_name);
-        formData.append('customer_email', checkoutData.customer_email);
-        formData.append('customer_phone', checkoutData.customer_phone);
-        formData.append('address', checkoutData.address);
-        formData.append('note', checkoutData.note);
-        formData.append('cartItems', carts.cartItems);
-        // for(let cart of carts.cartItem)
-        // {
-        //     formData.append('cartItem', cart);
-        // }
-        dispatch(checkOut(formData));
+        console.log('submit', carts);
+        // setCheckoutData({...checkoutData, cart: carts.cartItems});
+        dispatch(checkOut({...checkoutData, cart: carts.cartItems}));
         setCheckoutData(initialState);
+    }
+
+    const handleChange = (e) => {
+        setCheckoutData({...checkoutData, [e.target.name]: e.target.value});
     }
 
     return (
@@ -76,7 +70,7 @@ const CheckOut = () => {
                                         placeholder="Customer Name"
                                         autoFocus
                                         value={checkoutData.customer_name}
-                                        handleChange={(e) => setCheckoutData({...checkoutData, customer_name: e.target.value})}
+                                        handleChange={handleChange}
                                     />
                                 </Grid>       
                                 <Grid item xs={12} md={6}>
@@ -89,7 +83,7 @@ const CheckOut = () => {
                                         label="Customer Company"
                                         placeholder="Customer Company"                                        
                                         value={checkoutData.company_name}
-                                        handleChange={(e) => setCheckoutData({...checkoutData, company_name: e.target.value})}
+                                        handleChange={handleChange}
                                     />
                                 </Grid>
                                 <Grid item xs={12}>
@@ -104,7 +98,7 @@ const CheckOut = () => {
                                         id="address"
                                         multiline
                                         value={checkoutData.address}
-                                        handleChange={(e) => setCheckoutData({...checkoutData, address: e.target.value})}
+                                        handleChange={handleChange}
                                     />
                                 </Grid>       
                                 <Grid item xs={12} md={6}>
@@ -117,7 +111,7 @@ const CheckOut = () => {
                                         label="Customer Email"
                                         placeholder="Customer Email"
                                         value={checkoutData.customer_email}
-                                        handleChange={(e) => setCheckoutData({...checkoutData, customer_email: e.target.value})}
+                                        handleChange={handleChange}
                                     />
                                 </Grid>       
                                 <Grid item xs={12} md={6}>
@@ -130,7 +124,7 @@ const CheckOut = () => {
                                         label="Customer Phone"
                                         placeholder="Customer Phone"
                                         value={checkoutData.customer_phone}
-                                        handleChange={(e) => setCheckoutData({...checkoutData, customer_phone: e.target.value})}
+                                        handleChange={handleChange}
                                     />
                                 </Grid>       
                                 <Grid item xs={12}>
@@ -145,7 +139,7 @@ const CheckOut = () => {
                                         id="note"
                                         multiline
                                         value={checkoutData.note}
-                                        handleChange={(e) => setCheckoutData({...checkoutData, note: e.target.value})}
+                                        handleChange={handleChange}
                                     />
                                 </Grid>
                                 <Button
@@ -165,23 +159,45 @@ const CheckOut = () => {
                         Cart Items
                         </Typography>
                         {carts.cartItems.map((item, index) => {
-                            return (
-                                <div key={index}>
-                                    <Typography component="span" variant="body1">
-                                    {item.name} 
-                                    </Typography>
-                                    <Typography component="span" variant="body1">
-                                    {` x ${item.quantity}`}
-                                    </Typography>
-                                    <Typography component="span" variant="body1">
-                                    {` = ₹${item.price*item.quantity}`}
-                                    </Typography>
-                                </div>
-                            )
+                            if(!item.option_name)
+                            {
+                                return (
+                                    <div key={index}>
+                                        <Typography component="span" variant="body1">
+                                        {item.name} 
+                                        </Typography>
+                                        <Typography component="span" variant="body1">
+                                        {` x ${item.quantity}`}
+                                        </Typography>
+                                        <Typography component="span" variant="body1">
+                                        {` = ₹${item.price*item.quantity}`}
+                                        </Typography>
+                                    </div>
+                                )
+                            }
+                            else
+                            {
+                                return (
+                                    <div key={index}>
+                                        <Typography component="span" variant="body1">
+                                        {`${item.product_name} - ${item.option_name}`} 
+                                        </Typography>
+                                        <Typography component="span" variant="body1">
+                                        {` x ${item.quantity}`}
+                                        </Typography>
+                                        <Typography component="span" variant="body1">
+                                        {` = ₹${item.price*item.quantity}`}
+                                        </Typography>
+                                    </div>
+                                )
+                            }
                         })}
                         <Grid item md={12} xs={6}>
                             Total: &#8377; {carts.total}
                         </Grid>
+                        <Link to="/" className="btn btn-primary">
+                            Back to Cart
+                        </Link>
                     </Grid>         
                 </Grid>
             </div>

@@ -1,15 +1,16 @@
 import * as api from '../api';
-import { authConstants, SIGN_UP } from './constants';
+import { authConstants, cartConstants, SIGN_UP } from './constants';
 
 export const signin = (formData) => async (dispatch) => {
     try {
-        const { data } = await api.SignIn(formData);
-        dispatch({ type: authConstants.LOGIN_REQUEST, data });
+        const response = await api.SignIn(formData);
+        console.log('sign in', response);
+        dispatch({ type: authConstants.LOGIN_REQUEST, data: response.data });
     } catch (error) {
-        console.log(error);
+        console.log('action error', error);
         dispatch({
             type: authConstants.LOGIN_FAILURE, 
-            payload: error
+            payload: {error: Promise.reject(error)}
         });
     }
 };
@@ -42,6 +43,9 @@ export const signout = () => async (dispatch) => {
         dispatch({
             type: authConstants.LOGOUT_SUCCESS
         })
+        dispatch({
+            type: cartConstants.CLEAR,
+        });
     } catch (error) {
         dispatch({
             type: authConstants.LOGOUT_FAILURE,

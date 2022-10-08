@@ -49,6 +49,14 @@ class Validation
 								'min_length' => '{field} must be {param} or more characters'
 							]
 						],
+		'phone'        => [
+							'rules'  => 'required|exact_length[10]|integer',
+							'errors' => [
+								'required' => 'Please enter phone.',
+								'exact_length' => 'Please enter proper phone.',
+								'integer' => 'Please enter proper phone.',
+							]
+							],
 		'password'     => [
 							'rules'  => 'required|min_length[8]',
 							'errors' => [
@@ -56,35 +64,44 @@ class Validation
 								'min_length' => '{field} must be {param} or more characters'
 							]
 						],
-        'pass_confirm' => [
-							'rules'  => 'required|matches[password]',
+        'role'        => [
+							'rules'  => 'required',
 							'errors' => [
-								'required' => 'Password must match with confirm password.',
-								'matches' => 'Password must match with confirm password.'
-							]
-						],
-        'email'        => [
-							'rules'  => 'required|valid_email|is_unique[users.email]',
-							'errors' => [
-								'required' => 'Please enter proper email.',
-								'valid_email' => 'Please enter proper email.',
-								'is_unique' => 'Email Address already registered.'
+								'required' => 'Please select user role.',
 							]
 						]
     ];
 
 	public $signin = [
-		'email'        => [
-							'rules'  => 'required|valid_email',
+		'phone'        => [
+							'rules'  => 'required|exact_length[10]|integer',
 							'errors' => [
-								'required' => 'Please enter proper email.',
-								'valid_email' => 'Please enter proper email.'
+								'required' => 'Please enter phone.',
+								'exact_length' => 'Please enter proper phone.',
+								'integer' => 'Please enter proper phone.',
 							]
 							],
 		'password'     => [
 							'rules'  => 'required|min_length[8]',
 							'errors' => [
 								'required' => 'Password must be 8 or more characters.',
+								'min_length' => '{field} must be {param} or more characters'
+							]
+						],
+    ];
+
+	public $admin_signin = [
+		'username'        => [
+							'rules'  => 'required|min_length[5]',
+							'errors' => [
+								'required' => 'Please enter phone.',
+								'min_length' => 'Please enter proper username.',
+							]
+							],
+		'password'     => [
+							'rules'  => 'required|min_length[6]',
+							'errors' => [
+								'required' => 'Password must be 6 or more characters.',
 								'min_length' => '{field} must be {param} or more characters'
 							]
 						],
@@ -97,13 +114,7 @@ class Validation
 								'required' => 'Please enter proper name.',
 								'min_length' => '{field} must be {param} or more characters'
 							]
-						],
-        // 'image'        => [
-		// 					'rules'  => 'max_size[image,1024]',
-		// 					'errors' => [
-		// 						'max_size' => 'Image size should be < 1 MB.',
-		// 					]
-		// 				]
+						]
     ];
 
 	public $update_category = [
@@ -150,56 +161,6 @@ class Validation
 								'required' => 'Please enter proper {field}.',
 								'min_length' => '{field} must be {value}'
 							]
-						],
-		'description'		   => [
-							'rules'  => 'required',
-							'errors' => [
-								'required' => 'Please enter proper {field}.',
-							]
-						],
+						]
     ];
-
-	public $order = [
-        'cust_name'		   => [
-							'rules'  => 'required|min_length[3]',
-							'errors' => [
-								'required' => 'Please enter proper name.',
-								'min_length' => '{field} must be {param} or more characters'
-							]
-						],
-		'image'        => [
-							'rules'  => 'uploaded[image]|max_size[image,1024]',
-							'errors' => [
-								'max_size' => 'Image size should be < 1 MB.',
-							]
-						],
-		'category_id'		   => [
-							'rules'  => 'required|numeric',
-							'errors' => [
-								'required' => 'Please enter proper {field}.',
-								'numeric' => '{field} must be {value}'
-							]
-						],
-		'price'		   => [
-							'rules'  => 'required|numeric',
-							'errors' => [
-								'required' => 'Please enter proper {field}.',
-								'min_length' => '{field} must be {value}'
-							]
-						],
-		'stock'		   => [
-							'rules'  => 'required|numeric',
-							'errors' => [
-								'required' => 'Please enter proper {field}.',
-								'min_length' => '{field} must be {value}'
-							]
-						],
-		'description'		   => [
-							'rules'  => 'required',
-							'errors' => [
-								'required' => 'Please enter proper {field}.',
-							]
-						],
-    ];
-
 }

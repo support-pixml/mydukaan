@@ -1,7 +1,8 @@
 import { Backdrop, Button, Fade, Grid, makeStyles, Modal, Typography } from '@material-ui/core';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { ValidatorForm } from 'react-material-ui-form-validator';
 import { useDispatch } from 'react-redux';
-import { addCategory } from '../../actions/categories';
+import { addCategory, updateCategory } from '../../actions/categories';
 import Input from '../../components/UI/Input';
 
 const useStyles = makeStyles((theme) => ({
@@ -26,17 +27,37 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const AddCategory = ({handleClose, open}) => {
+const AddCategory = ({handleClose, open, category}) => {
     const classes = useStyles();
-    const [categoryData, setCategoryData] = useState({name: '', image: null});
+    const [categoryData, setCategoryData] = useState({name: ''});
     const dispatch = useDispatch();
     var formData = new FormData();
 
+    useEffect(() => {
+        if(category)
+        {
+            setCategoryData({ ...category, name: category.name});
+        }
+        else
+        {
+            setCategoryData({name: ''});
+        }
+    }, [category])
+
     const submitCategory = async (e) => {
         e.preventDefault();
-        formData.append('name', categoryData.name);
-        formData.append('image', categoryData.image);
-        dispatch(addCategory(formData));
+        if(category)
+        {
+            formData.append('category_id', category.long_id);
+            formData.append('name', categoryData.name);
+            dispatch(updateCategory(formData));
+        }
+        else {
+            formData.append('name', categoryData.name);
+            dispatch(addCategory(formData));
+        }
+        handleClose();
+        setCategoryData({name: ''});
     }
 
     return (
@@ -55,9 +76,9 @@ const AddCategory = ({handleClose, open}) => {
             <Fade in={open}>
                 <div className={classes.paper}>
                     <Typography component="h1" variant="h5">
-                        Add category
+                        {category ? 'Edit' : 'Add'}  category
                     </Typography>
-                    <form className={classes.form} noValidate onSubmit={submitCategory}>
+                    <ValidatorForm className={classes.form} noValidate onSubmit={submitCategory}>
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
                                 <Input
@@ -69,13 +90,9 @@ const AddCategory = ({handleClose, open}) => {
                                     label="Category Name"
                                     placeholder="Category Name"
                                     autoFocus
+                                    value={categoryData.name}
                                     handleChange={(e) => setCategoryData({...categoryData, name: e.target.value})}
                                 />
-                            </Grid>   
-                        </Grid>
-                        <Grid container spacing={3}>
-                            <Grid item xs={12}>
-                                <input type="file" onChange={(e) => setCategoryData({...categoryData, image: e.target.files[0]})} />
                             </Grid>   
                         </Grid>
                         <Button
@@ -87,7 +104,7 @@ const AddCategory = ({handleClose, open}) => {
                         >
                             Submit
                         </Button>
-                    </form>
+                    </ValidatorForm>
                 </div>
             </Fade>
         </Modal>

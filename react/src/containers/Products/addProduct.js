@@ -1,23 +1,15 @@
-import { Avatar, Button, Checkbox, Container, CssBaseline, FormControl, FormControlLabel, Grid, InputLabel, makeStyles, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextareaAutosize, Typography } from '@material-ui/core';
+import { Accordion, AccordionDetails, AccordionSummary, Button, Checkbox, Container, FormControl, FormControlLabel, Grid, makeStyles, Select, Typography } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import Input from '../../components/UI/Input';
 import {useDispatch, useSelector} from 'react-redux';
 import { getCategories } from '../../actions/categories';
-import { addProduct, getProducts } from '../../actions/products';
-import ProductOptions from './addProductOptions';
+import { addProduct, updateProduct } from '../../actions/products';
+import { ValidatorForm } from 'react-material-ui-form-validator';
+import { MdExpandMore } from 'react-icons/md';
 
 const initialState = {
-    name: '', image: null, category_id: '', price: '', stock: '', description: ''
+    name: '', category_id: '', price: '', description: '', min_stock_qty: '', is_favorite: false
 };
-
-const initialOptionsState = [
-    {
-        index: Math.random(),
-        option_name: '',
-        option_price: '',
-        option_stock: ''
-    }
-]
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -38,219 +30,215 @@ const useStyles = makeStyles((theme) => ({
     },
     selectEmpty: {
         marginTop: theme.spacing(2),
-    },
-    table: {
-        minWidth: 650,
-    },
+    }
+
 }));
 
-const AddProduct = () => {
+const AddProduct = ({expanded, product, setExpanded, message, onMessageHandler}) => {
     const classes = useStyles();
     const [productData, setProductData] = useState(initialState);
-    const [productOptions, setProductOptions] = useState(initialOptionsState);
-    const [isOption, setIsOption] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(''); 
+    const [isFavoriteState, setIsFavoriteState] = useState(false);
     const dispatch = useDispatch();
-    var formData = new FormData();
 
     useEffect(() => {
-        dispatch(getCategories());
-    }, [dispatch]);
+        if(expanded === 'panel1') dispatch(getCategories());
+    }, [expanded]);
 
     useEffect(() => {
-        dispatch(getProducts());
-    }, [dispatch]);
+        reset();
+        if(product)
+        {
+            setProductData({ ...product});
+            setSelectedFile('');
+            if(product.is_favorite === '1')
+                setIsFavoriteState(true);
+            else
+                setIsFavoriteState(false);
+        }  
+        else
+        {
+            setProductData(initialState);
+            setSelectedFile('');
+            setIsFavoriteState(false);
+        }      
+    }, [product])
 
     const categories = useSelector((state) => state.category.categories);
-    const products = useSelector((state) => state.product.products);
 
     const submitProduct = (e) => {
-        e.preventDefault();
-        formData.append('name', productData.name);
-        formData.append('category_id', productData.category_id);
-        formData.append('price', productData.price);
-        formData.append('stock', productData.stock);
-        formData.append('description', productData.description);
-        formData.append('image', productData.image);
-        console.log(formData);
-        dispatch(addProduct(formData));
-        setProductData(initialState);
+        e.preventDefault();        
+        if(product)
+        {
+            dispatch(updateProduct(product.long_id, {...productData, image: selectedFile }));
+        }
+        else 
+        {
+            dispatch(addProduct({...productData, image: selectedFile}));
+        }   
+        onMessageHandler();       
     }
 
-    const renderProductsTable = () => {
-        return (
-            <TableContainer component={Paper}>
-                <Table className={classes.table} aria-label="simple table">
-                    <TableHead>
-                    <TableRow>
-                        <TableCell>Product Name</TableCell>
-                        <TableCell>Price</TableCell>
-                        <TableCell>Stock</TableCell>
-                        <TableCell>Image</TableCell>
-                        <TableCell>Action</TableCell>
-                    </TableRow>
-                    </TableHead>
-                    <TableBody>
-                    {products.map((product) => (
-                        <TableRow key={product.long_id}>
-                        <TableCell component="th" scope="row">
-                            {product.name}
-                        </TableCell>
-                        <TableCell>&#8377;{product.price}</TableCell>
-                        <TableCell>{product.stock}</TableCell>
-                        <TableCell>
-                            <Avatar alt={product.name} variant="rounded" src={`/uploads/products/${product.image}`} />
-                        </TableCell>
-                        <TableCell></TableCell>
-                        </TableRow>
-                    ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        )
-    } 
-
-    const addNewRow = e => {
-        setProductOptions([
-            ...productOptions,
-            {
-            index: Math.random(),
-            option_name: "",
-            option_price: "",
-            option_stock: "",
-            }
-        ])
-    };
-
-    const clickOnDelete = (record) => {
-        setProductOptions(productOptions.filter(r => r !== record));
+    const reset = () => {
+        document.getElementById('contained-button-file').value = '';
     }
 
+    useEffect(() => {
+        if(message)
+        {
+            setProductData(initialState);
+            setSelectedFile('');
+            setExpanded('');            
+        }
+    }, [message]);
+
+    let ImageBase64 = '';
+    const handleChange = e => {
+        if(e.target.name !== '')
+        {
+            setProductData({...productData, [e.target.name]: e.target.value});
+        }
+        if(e.target.name === 'is_favorite')
+        {
+            setProductData({...productData, [e.target.name]: !isFavoriteState});
+            setIsFavoriteState(!isFavoriteState);
+        }
+        if(e.target.name === 'product_image')
+        {
+            getBase64(e.target.files[0], (result) => {
+                ImageBase64 = result;
+                setSelectedFile(ImageBase64);
+           });
+        }
+    };   
+
+    const getBase64 = (file, cb) => {
+        let reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function () {
+            cb(reader.result)
+        };
+        reader.onerror = function (error) {
+            console.log('Error: ', error);
+        };
+    }
+    
     return (
-        <Container component="main" maxWidth="lg">
-            <CssBaseline />
-            <div className={classes.paper}>
-            <Grid container spacing={2}>
-                <Grid item xs={12} md={8}>
-                    {renderProductsTable()}
-                </Grid>
-                <Grid item xs={12} md={4}>
-                    <Typography component="h1" variant="h5">
-                    Add Product
-                    </Typography>
-                    <form className={classes.form} noValidate onSubmit={submitProduct}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <Input
-                                name="name"
-                                variant="outlined"
-                                required
-                                fullWidth
-                                id="productName"
-                                label="Product Name"
-                                placeholder="Product Name"
-                                autoFocus
-                                handleChange={(e) => setProductData({...productData, name: e.target.value})}
-                            />
-                        </Grid>                    
-                        <Grid item xs={12}>
-                            <FormControl variant="outlined" className={classes.formControl}>
-                                <InputLabel htmlFor="outlined-category-native-simple">Category</InputLabel>
-                                <Select
-                                    native
-                                    value={formData.category_id}
-                                    onChange={(e) => setProductData({...productData, category_id: e.target.value})}
-                                    label="Category"
-                                    inputProps={{
-                                        name: 'category',
-                                        id: 'outlined-category-native-simple',
-                                    }}
-                                >
-                                <option aria-label="None" value="" />
-                                {categories.map((category) => (
-                                    <option key={category.id} value={category.id}>{category.name}</option>
-                                ))}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Input
-                                variant="outlined"
-                                required
-                                fullWidth
-                                name="price"
-                                label="Price"
-                                placeholder="Price"
-                                id="price"
-                                handleChange={(e) => setProductData({...productData, price: e.target.value})}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Input
-                                variant="outlined"
-                                required
-                                fullWidth
-                                name="stock"
-                                label="Stock"
-                                placeholder="Stock"
-                                id="stock"
-                                handleChange={(e) => setProductData({...productData, stock: e.target.value})}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Input
-                                variant="outlined"
-                                required
-                                fullWidth
-                                rows={5}
-                                name="description"
-                                label="Description"
-                                placeholder="Description"
-                                id="description"
-                                multiline
-                                handleChange={(e) => setProductData({...productData, description: e.target.value})}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <input type="file" onChange={(e) => setProductData({...productData, image: e.target.files[0]})} />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <FormControlLabel
-                                control={
-                                <Checkbox
-                                    checked={isOption}
-                                    onChange={() => setIsOption(!isOption)}
-                                    name="isOption"
-                                    color="primary"
-                                />
-                                }
-                                label="Has Options?"
-                            />
-                        </Grid>
-                        {isOption ? (
-                        <Grid item xs={12}>
-                            <ProductOptions
-                                add={addNewRow}
-                                deleteRow={clickOnDelete.bind(this)}
-                                bookDetails={productOptions}
-                            />
-                        </Grid>
-                        ): null}
-                    </Grid>
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
+            <Accordion expanded={expanded === 'panel1'}>
+                <AccordionSummary
+                    expandIcon={<MdExpandMore />}                    
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
                     >
-                        Submit
-                    </Button>
-                    </form>
-                </Grid>
-            </Grid>
-
-            </div>
-        </Container>
+                    <Typography className={classes.heading}>{product ? 'Edit' : 'Add'} Product</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Container>
+                        <Grid container item md={12} xs={12}>
+                            <Grid item xs={12} md={6}>
+                                <ValidatorForm className={classes.form} noValidate onSubmit={submitProduct} onChange={handleChange}>
+                                    <Grid container spacing={2}>
+                                    <Grid item xs={12}>
+                                        <Input
+                                            name="name"
+                                            variant="outlined"
+                                            required
+                                            fullWidth
+                                            id="productName"
+                                            label="Product Name"
+                                            placeholder="Product Name"
+                                            autoFocus
+                                            value={productData.name}
+                                            validators={['required']}
+                                            errorMessages={['this field is required']}
+                                        />
+                                    </Grid>                    
+                                    <Grid item xs={12}>
+                                        <FormControl variant="outlined" className={classes.formControl}>
+                                            <Select
+                                                native
+                                                value={productData.category_id}
+                                                inputProps={{
+                                                    name: 'category_id',
+                                                    id: 'outlined-category-native-simple',
+                                                }}
+                                            >
+                                            <option aria-label="None" value="">Select Category</option>
+                                            {categories.map((category) => (
+                                                <option key={category.id} value={category.id}>{category.name}</option>
+                                            ))}
+                                            </Select>
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Input
+                                            variant="outlined"
+                                            fullWidth
+                                            name="price"
+                                            label="Price"
+                                            placeholder="Price"
+                                            id="price"
+                                            value={productData.price}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Input
+                                            variant="outlined"
+                                            fullWidth
+                                            name="min_stock_qty"
+                                            label="Min. Stock Quantity"
+                                            placeholder="Min. Stock Quantity"
+                                            id="min_stock_qty"
+                                            value={productData.min_stock_qty}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Input
+                                            variant="outlined"
+                                            fullWidth
+                                            rows={5}
+                                            name="description"
+                                            label="Description"
+                                            placeholder="Description"
+                                            id="description"
+                                            multiline
+                                            value={productData.description}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <FormControlLabel
+                                            control={
+                                            <Checkbox
+                                                checked={isFavoriteState}
+                                                name="is_favorite"
+                                                color="primary"
+                                            />
+                                            }
+                                            label="Is Favorite?"
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        {/* <FileBase type="file" multiple={false} onDone={({ base64 }) => setSelectedFile(base64)} /> */}
+                                        <label htmlFor="contained-button-file">
+                                            <input accept="image/jpeg, image/jpg" name="product_image" id="contained-button-file" type="file" />
+                                        </label>
+                                    </Grid>
+                                    <Button
+                                        type="submit"
+                                        fullWidth
+                                        variant="contained"
+                                        color="primary"
+                                        className={classes.submit}
+                                    >
+                                        Submit
+                                    </Button>
+                                    </Grid>
+                                </ValidatorForm>                                  
+                            </Grid>
+                        </Grid>
+                    </Container>                
+            </AccordionDetails>
+        </Accordion>   
     )
 }
 

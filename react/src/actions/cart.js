@@ -47,6 +47,12 @@ export const removeProduct = (payload) => async (dispatch) => {
     });
 }
 
+export const updateProductQty = (payload) => async (dispatch) => {
+    dispatch({
+        type: cartConstants.UPDATE_ITEM, payload
+    });
+}
+
 export const removeProductOption = (payload) => async (dispatch) => {
     dispatch({
         type: cartConstants.REMOVE_OPTION_ITEM, payload
@@ -66,6 +72,7 @@ export const checkOut = (orderData) => async (dispatch) => {
     try {
         console.log('place_order', orderData);
         const {data} = await api.placeOrder(orderData);
+        console.log('checkout res', data);
         dispatch({ type: cartConstants.CHECKOUT_SUCCESS, payload: data });
     } catch (error) {
         console.log(error);

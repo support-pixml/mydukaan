@@ -18,8 +18,7 @@ const useStyles = makeStyles((theme) => ({
         [theme.breakpoints.up('sm')]: {
         marginLeft: theme.spacing(3),
         width: 'auto',
-        },
-        
+        },        
     },
     searchIcon: {
         padding: theme.spacing(0, 2),
@@ -45,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const SearchBar = () => {
+const SearchBar = ({setSearch}) => {
     const classes = useStyles();
     return (
         <div className={`${classes.search}`}>
@@ -59,6 +58,7 @@ const SearchBar = () => {
                 input: classes.inputInput,
             }}
             inputProps={{ 'aria-label': 'search' }}
+            onChange={(e) => setSearch(e.target.value.trim())}
             />
         </div>
     )

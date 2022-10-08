@@ -16,10 +16,11 @@ const initialState = { cartItems: storage, ...sumItems(storage), checkout: false
 export const CartReducer = (state=initialState, action) => {
     switch (action.type) {
         case cartConstants.ADD_ITEM:
-            if (!state.cartItems.find(item => item.long_id === action.payload.long_id)) {
+            if (!state.cartItems.find(item => item.long_id === action.payload.addedProd.long_id)) {
                 state.cartItems.push({
-                    ...action.payload,
-                    quantity: 1
+                    ...action.payload.addedProd,
+                    quantity: 1,
+                    price: action.payload.productPrice.price
                 })
             }
             return {
@@ -27,7 +28,7 @@ export const CartReducer = (state=initialState, action) => {
                 ...sumItems(state.cartItems),
                 cartItems: [...state.cartItems]
             }
-        case cartConstants.REMOVE_ITEM:           
+        case cartConstants.REMOVE_ITEM:    
             return {
                 ...state,
                 ...sumItems(state.cartItems.filter(item => item.long_id !== action.payload.long_id)),
@@ -40,7 +41,14 @@ export const CartReducer = (state=initialState, action) => {
                 cartItems: [...state.cartItems.filter(item => item.product_option_id !== action.payload.product_option_id)]
             }
         case cartConstants.INCREASE:
-            state.cartItems[state.cartItems.findIndex(item => item.long_id === action.payload.long_id)].quantity++
+            state.cartItems[state.cartItems.findIndex(item => item.long_id === action.payload.long_id)].quantity++;
+            return {
+                ...state,
+                ...sumItems(state.cartItems),
+                cartItems: [...state.cartItems]
+            }
+        case cartConstants.UPDATE_ITEM:
+            state.cartItems[state.cartItems.findIndex(item => item.long_id === action.payload.product.long_id)].quantity = action.payload.qty;
             return {
                 ...state,
                 ...sumItems(state.cartItems),
@@ -80,16 +88,19 @@ export const CartReducer = (state=initialState, action) => {
                 ...sumItems(state.cartItems),
                 cartItems: [...state.cartItems]
             }
-        case cartConstants.CHECKOUT:
+        case cartConstants.CHECKOUT_SUCCESS:
             return {
+                ...state,
                 cartItems: [],
                 checkout: true,
                 ...sumItems([]),
+                response: action.payload
             }
         case cartConstants.CLEAR:
                 return {
                     cartItems: [],
                     ...sumItems([]),
+                    response: null
                 }
         default:
             return state

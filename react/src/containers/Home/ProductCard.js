@@ -1,8 +1,7 @@
-import { Avatar, Backdrop, Badge, Button, Divider, Fade, Grid, List, ListItem, ListItemAvatar, ListItemText, makeStyles, Modal, Typography } from '@material-ui/core';
-import React, { Fragment, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { getAllProducts } from '../../actions/products';
-import CartButton from '../../components/UI/CartButton';
+import { Badge, CircularProgress, Divider, List, makeStyles, Typography } from '@material-ui/core';
+import React, { Fragment } from 'react';
+import { useSelector } from 'react-redux';
+import SingleProduct from './SingleProduct';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -16,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
         margin: `${theme.spacing(4)}px 0 ${theme.spacing(2)}px`,
     },
     product_area: {
+        fontSize: '16px',
         marginLeft: `${theme.spacing(2)}px`,
     },
     large: {
@@ -34,109 +34,52 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(2, 4, 3),
         width: '500px'
     },
+    loader: {
+        position: 'relative',
+        marginLeft:'50%',
+        top:'50%',
+        height:'100vh'
+    }
 })); 
 
-const ProductCard = ({cartItems}) => {
+const ProductCard = ({cartItems, auth, cat_products}) => {
     const classes = useStyles();
-    const dispatch = useDispatch();
-    const [openOption, setOpenOption] = useState(false);
 
-    useEffect(() => {
-        dispatch(getAllProducts());
-    }, [dispatch]);
+    const error = useSelector(state => state.error.error);
 
-    const handleCloseModal = () => {
-        setOpenOption(false);
-    };
+    if(cat_products.length === 0)
+    {
+        if(error)
+        {
+            return (
+                <div>
+                    <Typography variant="h6" className={classes.title}>
+                        {error}
+                    </Typography>
+                </div>  
+            )
+        }
 
-    const handleOpenModal = () => {
-        setOpenOption(true);
-    };
-
-    const cat_products = useSelector((state) => state.product.products);  
-
-    return (
+        return (
+            <div className={classes.loader}>
+                <CircularProgress color="secondary" />
+            </div>
+        )
+    }
+    
+    return (     
         <div className={classes.root}>
-            {cat_products.map(({long_id, name, products, slug, product_count}) => {
+            {cat_products && cat_products.map(({long_id, name, products, slug, product_count}) => {
                 return (
-                <div key={long_id} id={slug}>
+                <div key={long_id} id={slug} className="element">
                     <Typography variant="h6" className={classes.title}>
                         {name} <Badge badgeContent={product_count} color="primary" className="ml-3 pb-1" />
                     </Typography>
                     <List className={classes.root}>
-                    {products ? products.map((product) => {
+                    {products ? products.map((product) => {                        
                         return (
                             <Fragment key={product.long_id}>
-                            <ListItem alignItems="flex-start">
-                                <ListItemAvatar>
-                                    <Avatar alt={product.name} variant="rounded" className={classes.large} src={`/uploads/products/${product.image}`} />
-                                </ListItemAvatar>
-                                <ListItemText className={classes.product_area}
-                                    primary={product.name}
-                                    secondary={                                   
-                                    <Fragment>
-                                        <Typography
-                                            component="p"
-                                            variant="body2"
-                                            className={classes.inline}
-                                            color="textPrimary"
-                                        >
-                                            &#8377; {product.price}
-                                        </Typography>
-                                        <Typography
-                                            component="p"
-                                            variant="body2"
-                                            color="textPrimary"
-                                        >
-                                            Stock: {product.stock}
-                                        </Typography>
-                                        {product.stock > 0 && product.product_options.length == 0 ?
-                                        <CartButton product={product} cartItems={cartItems} />
-                                        :
-                                        <div className="float-right">
-                                            <Button size="small" color="secondary" variant="outlined" onClick={handleOpenModal}>Select</Button>
-                                            <Modal
-                                                className={classes.modal}
-                                                open={openOption}
-                                                onClose={handleCloseModal}
-                                                closeAfterTransition
-                                                BackdropComponent={Backdrop}
-                                                BackdropProps={{
-                                                    timeout: 500,
-                                                }}
-                                            >
-                                                <Fade in={openOption}>
-                                                    <div className={classes.paper}>
-                                                        <Typography component="h1" variant="h5">
-                                                            Select Option
-                                                        </Typography>
-                                                        <Grid container spacing={2}>   
-                                                            {product.product_options.map((option, index) => {
-                                                                return (
-                                                                <Grid item xs={12} md={4} key={index} className="text-center">
-                                                                    <Typography component="p" variant="body1">
-                                                                        {option.option_name}
-                                                                    </Typography>
-                                                                    <Typography component="p" variant="body2">
-                                                                        Stock: {option.option_stock}
-                                                                    </Typography>
-                                                                    <Typography component="p" variant="caption">
-                                                                        &#8377; {option.option_price}
-                                                                    </Typography>
-                                                                    <CartButton option={option} cartItems={cartItems} />
-                                                                </Grid>
-                                                                );
-                                                            })}
-                                                        </Grid>
-                                                    </div>
-                                                </Fade>
-                                            </Modal>
-                                        </div>
-                                        }
-                                    </Fragment>
-                                }
-                                />
-                            </ListItem>
+                            <SingleProduct product={product} cartItems={cartItems} auth={auth} />
                             <Divider />
                             </Fragment>
                         )}) : 
@@ -144,7 +87,8 @@ const ProductCard = ({cartItems}) => {
                         } 
                     </List>
                 </div>
-            )})}
+            )})
+            }
         </div>
     )
 }

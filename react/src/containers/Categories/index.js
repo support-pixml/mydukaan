@@ -1,6 +1,5 @@
-import { Typography } from '@material-ui/core';
+import { Container, Grid, Typography } from '@material-ui/core';
 import React, { useEffect } from 'react';
-import { Col, Container, Image, Row } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCategories } from '../../actions/categories';
 
@@ -15,11 +14,9 @@ const Categories = () => {
 
     return (
         <Container className="mt-3">
-            <Row>
-                <Col md={{span:12}}>
-                    <h3>All Categories</h3>
-                </Col>
-            </Row>
+            <Grid md={{span:12}}>
+                <h3>All Categories</h3>
+            </Grid>
             <Row>
                 {categories.map((category) => (
                     <Col className="pt-3" md={{span:3}} xs={{span:4}} key={category.id}>

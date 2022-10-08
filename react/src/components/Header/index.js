@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import logo from '../../images/logo-dark.png';
-import { AppBar, Badge, Button, Divider, IconButton, List, ListItem, ListItemIcon, ListItemText, makeStyles, Menu, MenuItem, SwipeableDrawer, Toolbar } from '@material-ui/core';
-import AccountCircle from '@material-ui/icons/AccountCircle';
+import { AppBar, Badge, Button, Divider, IconButton, List, ListItem, makeStyles, SwipeableDrawer, Toolbar, Typography } from '@material-ui/core';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import LocalMallOutlinedIcon from '@material-ui/icons/LocalMallOutlined';
-import SettingsIcon from '@material-ui/icons/Settings';
-import AddCategory from '../../containers/Categories/addCategory';
 import { useDispatch, useSelector } from 'react-redux';
 import { isUserLoggedIn, signout } from '../../actions/auth';
-import { AddBox, ListTwoTone } from '@material-ui/icons';
+import { ListTwoTone } from '@material-ui/icons';
+import {FaSignOutAlt} from 'react-icons/fa';
+
 
 const useStyles = makeStyles((theme) => ({
     grow: {
@@ -57,59 +55,19 @@ const useStyles = makeStyles((theme) => ({
 
 const Header = () => {
     const classes = useStyles();
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
-    const [open, setOpen] = useState(false);
-    const [categoryOpen, setCategoryOpen] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const auth = useSelector(state => state.auth.authData);
 
-    // const cartCount = useSelector((state) => state.cart.itemCount);
+    const cartCount = useSelector((state) => state.cart.itemCount);
 
     const dispatch = useDispatch();
     useEffect(() => {
         if(!auth?.user)
         {
-            dispatch(isUserLoggedIn());
+            dispatch(isUserLoggedIn);
         }
-    }, []);
-
-    const isMenuOpen = Boolean(anchorEl);
-    const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-
-    const handleProfileMenuOpen = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleMobileMenuClose = () => {
-        setMobileMoreAnchorEl(null);
-    };
-
-    const handleMenuClose = () => {
-        setAnchorEl(null);
-        handleMobileMenuClose();
-    };
-
-    const handleMobileMenuOpen = (event) => {
-        setMobileMoreAnchorEl(event.currentTarget);
-    };
-
-    const handleOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-    const handleCategoryOpen = () => {
-        setCategoryOpen(true);
-    };
-
-    const handleCategoryClose = () => {
-        setCategoryOpen(false);
-    };
+    }, [auth]);
 
     const handleSidebarOpen = () => {
         setSidebarOpen(true);
@@ -123,84 +81,6 @@ const Header = () => {
         dispatch(signout());
     }
 
-    const pathname = window.location.pathname;
-
-    const menuId = 'primary-search-account-menu';
-    const renderMenu = (
-        <Menu
-            anchorEl={anchorEl}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            id={menuId}
-            keepMounted
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            open={isMenuOpen}
-            onClose={handleMenuClose}
-            >
-            <MenuItem><Link to="/signin" className="" color="inherit">Sign In</Link></MenuItem>
-            <MenuItem><Link to="/signup" className="" color="inherit">Sign Up</Link></MenuItem>
-        </Menu> 
-    );
-
-    const renderAuthMenu = (
-        <Menu
-            anchorEl={anchorEl}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            id={menuId}
-            keepMounted
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            open={isMenuOpen}
-            onClose={handleMenuClose}
-            >
-            <MenuItem><li className="" color="inherit"><span onClick={logout}>Sign Out</span></li></MenuItem>
-        </Menu> 
-    );
-
-    const mobileMenuId = 'primary-search-account-menu-mobile';
-    const renderMobileMenu = (
-        <Menu
-            anchorEl={mobileMoreAnchorEl}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            id={mobileMenuId}
-            keepMounted
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            open={isMobileMenuOpen}
-            onClose={handleMobileMenuClose}
-        >
-        <MenuItem>
-            <IconButton color="inherit" onClick={handleSidebarOpen}
-                aria-label="setting"
-                aria-haspopup="true"
-                className={classes.button}>
-                <SettingsIcon />
-            </IconButton>
-            <p>Settings</p>
-        </MenuItem>
-        {/* <MenuItem>
-            <IconButton aria-label="show 11 new notifications" color="inherit">
-            <Badge badgeContent={cartCount} color="secondary">
-                <LocalMallOutlinedIcon />
-            </Badge>
-            </IconButton>
-            <p>Bag</p>
-        </MenuItem> */}
-        <MenuItem onClick={handleProfileMenuOpen}>
-            <IconButton
-            aria-label="account of current user"
-            aria-controls="primary-search-account-menu"
-            aria-haspopup="true"
-            color="inherit"
-            >
-            <AccountCircle />
-            </IconButton>
-            <p>Profile</p>
-        </MenuItem>
-        </Menu>
-    );
-
-    const categoryModal = (
-        <AddCategory handleClose={handleCategoryClose} open={categoryOpen} />
-    )   
-
     const list = (
         <div
             className={classes.list}
@@ -208,41 +88,69 @@ const Header = () => {
             onClick={handleSidebarClose}
             onKeyDown={handleSidebarClose}
         >
-            <List>
-                <ListItem>
-                    <Link to="/add-product" className="btn btn-block">
-                        <AddBox /> Add Product
-                    </Link>
+            <List>                    
+                <ListItem className="d-block">  
+                    <Typography
+                        component="strong"
+                    >
+                        {auth?.user.name}
+                    </Typography>  
+                    <Typography component="p" variant="caption">
+                        {auth?.user.phone}
+                    </Typography>   
                 </ListItem>
+                <Divider />
                 <ListItem>
-                    <Link to="/add-product" className="btn btn-block">
+                    <Link to="/show-products" className="w-100">
                         <ListTwoTone /> Products
                     </Link>
                 </ListItem>
+                <Divider />
+                {(auth?.user.role === '1' || auth?.user.role === '2') && <> 
                 <ListItem>
-                    <Button
-                        aria-haspopup="true"
-                        className="btn btn-block"
-                        onClick={handleCategoryOpen}
-                    >
-                        <AddBox />&nbsp;&nbsp;Add Category
-                    </Button>
-                </ListItem>
-                <ListItem>
-                    <Link to="/show-categories" className="btn btn-block">
+                    <Link to="/show-categories" className="w-100">
                         <ListTwoTone /> Categories
                     </Link>
                 </ListItem>
-            </List>
-            <Divider />
-            <List>
-                <ListItem button>
-                    <ListItemIcon></ListItemIcon>
-                    <ListItemText primary="Orders" />
+                <Divider /></>}
+                {auth?.user.role === '1' && <>
+                <ListItem>
+                    <Link to="/show-users" className="w-100">
+                        <ListTwoTone /> Users
+                    </Link>
                 </ListItem>
-                <ListItem button>
-                    <ListItemIcon></ListItemIcon>
-                    <ListItemText primary="Users" />
+                <Divider /></>}
+                {(auth?.user.role === '1' || auth?.user.role === '2') ? 
+                <> 
+                    <ListItem>
+                        <Link to="/show-orders" className="w-100"> 
+                            <ListTwoTone /> Orders
+                        </Link>
+                    </ListItem>
+                    <Divider />
+                    <ListItem>
+                        <Link to="/show-temp-orders" className="w-100"> 
+                            <ListTwoTone /> Salesman's Orders
+                        </Link>
+                    </ListItem>
+                </> : 
+                <> 
+                <ListItem>
+                    <Link to="/show-temp-orders" className="w-100"> 
+                        <ListTwoTone /> Orders
+                    </Link>
+                </ListItem>
+                <Divider />
+            </>
+                }
+                <ListItem>
+                    <Button color="primary" disableElevation
+                        className="btn btn-block btn-primary"
+                        variant="contained"
+                        onClick={logout}
+                    >
+                        <FaSignOutAlt />&nbsp;&nbsp;Sign Out
+                    </Button>
                 </ListItem>
             </List>
         </div>
@@ -250,7 +158,7 @@ const Header = () => {
 
     const sidebar = ( 
         <SwipeableDrawer
-            anchor="left"
+            anchor="right"
             onClose={handleSidebarClose}
             onOpen={handleSidebarOpen}
             open={sidebarOpen}
@@ -261,45 +169,42 @@ const Header = () => {
 
     return (
         <div className={classes.grow}>
-        <AppBar position="fixed">
+        <AppBar position="fixed" color="inherit">
             <Toolbar>
             <Link to="/" className="">
-                <img className="" src={logo} alt="Logo" height="50" />
+                {customer.logo !== null ? 
+                <img className="" src={`uploads/customers/${customer.logo}`} alt="Logo" height="50" />
+                :
+                <Typography variant="h4">
+                    {customer.company_name} 
+                </Typography>                
+                }
             </Link>
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
-                {pathname === '/signin' || pathname === '/signup' ? 
-                null :  <>
-                {/* <IconButton aria-label="show new notifications" color="inherit">
-                    <Badge badgeContent={cartCount} color="secondary">
-                        <LocalMallOutlinedIcon />
-                    </Badge>
-                </IconButton> */}
+                {auth?.user &&
                 <IconButton color="inherit" onClick={handleSidebarOpen}
                     aria-label="setting"
                     aria-haspopup="true"
                     className={classes.button}>
-                    <SettingsIcon />
+                    <MoreIcon />
                 </IconButton>
-                <Button
-                    color="inherit"
-                    aria-label="account of current user"
-                    aria-controls={menuId}
-                    aria-haspopup="true"
-                    className={classes.button}
-                    onClick={handleProfileMenuOpen}
-                    endIcon={<AccountCircle />}
-                >
-                    Profile
-                </Button></>
                 }
             </div>
             <div className={classes.sectionMobile}>
+                {cartCount > 0 && 
+                <Link to="/checkout" className="">
+                    <IconButton aria-label="show new notifications" color="inherit">
+                        <Badge badgeContent={cartCount} color="secondary">
+                            <LocalMallOutlinedIcon />
+                        </Badge>
+                    </IconButton>
+                </Link>
+                }
                 <IconButton
                 aria-label="show more"
-                aria-controls={mobileMenuId}
                 aria-haspopup="true"
-                onClick={handleMobileMenuOpen}
+                onClick={handleSidebarOpen}
                 color="inherit"
                 >
                 <MoreIcon />
@@ -307,9 +212,6 @@ const Header = () => {
             </div>
             </Toolbar>
         </AppBar>
-        {renderMobileMenu}
-        {auth?.user ? renderAuthMenu : renderMenu}
-        {categoryModal}
         {sidebar}
         </div>
     );

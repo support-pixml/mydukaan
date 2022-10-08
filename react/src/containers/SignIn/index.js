@@ -1,13 +1,16 @@
-import { Avatar, Button, Container, CssBaseline, Grid, makeStyles, Typography } from '@material-ui/core';
-import React, { useState } from 'react';
+import { Avatar, Button, Container, CssBaseline, makeStyles, Snackbar, Typography } from '@material-ui/core';
+import React, { useRef, useState } from 'react';
 import Input from "../../components/UI/Input";
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { signin } from '../../actions/auth';
 import {useDispatch, useSelector} from 'react-redux';
+import { ValidatorForm } from 'react-material-ui-form-validator';
+import { Alert } from '@material-ui/lab';
+import { errorConstants } from '../../actions/constants';
 
-const initialState = {
-    email: '',
+const state = {
+    phone: '',
     password: ''
 };
 
@@ -33,23 +36,34 @@ const useStyles = makeStyles((theme) => ({
 
 const Signin = () => {
 
-    const [formData, setFormData] = useState(initialState);
+    const [formData, setFormData] = useState(state);
     const classes = useStyles();
+    const [errorOpen, setErrorOpen] = useState(true);
+    const form = useRef(null);
 
-    // const [error, setError] = useState('');
     const dispatch = useDispatch();
 
     const auth = useSelector(state => state.auth.authData);
-    console.log(auth);
+    const error = useSelector(state => state.error.error);
 
     const userLogin = (e) => {
         e.preventDefault();
         dispatch(signin(formData));
+        setErrorOpen(true);
     }
 
+    const errorCloseHandler = () => {
+        setErrorOpen(false);
+        dispatch({
+            type: errorConstants.ERROR_CLEAR
+        });
+    }
+    
     const handleChange = (e) => {
         setFormData({...formData, [e.target.name]: e.target.value});
     }
+
+
 
     if(auth?.user?.name != null)
     {
@@ -66,29 +80,34 @@ const Signin = () => {
                 <Typography component="h1" variant="h5">
                     Sign in
                 </Typography>
-                <form className={classes.form} noValidate onSubmit={userLogin}>
+                <ValidatorForm className={classes.form} ref={form} noValidate onSubmit={userLogin}>
                     <Input
                         variant="outlined"
                         margin="normal"
                         required
+                        value={formData.phone}
                         fullWidth
-                        id="email"
-                        label="Email Address"
-                        name="email"
+                        id="phone"
+                        label="Phone Number"
+                        name="phone"
                         autoFocus
-                        type="email"
                         handleChange={handleChange}
+                        validators={['required']}
+                        errorMessages={['this field is required']}
                     />                    
                     <Input
                         variant="outlined"
                         margin="normal"
                         required
+                        value={formData.password}
                         fullWidth
                         name="password"
                         label="Password"
                         type="password"
                         id="password"
                         handleChange={handleChange}
+                        validators={['required']}
+                        errorMessages={['this field is required']}
                     />
                     <Button
                         type="submit"
@@ -99,14 +118,11 @@ const Signin = () => {
                     >
                         Sign In
                     </Button>
-                    <Grid container justify="flex-end">
-                        <Grid item>
-                        <Link to="/signup">
-                            {"Don't have an account? Sign Up"}
-                        </Link>
-                        </Grid>
-                    </Grid>
-                </form>
+                </ValidatorForm>
+                {error && 
+                <Snackbar open={errorOpen} autoHideDuration={3000} onClose={errorCloseHandler}>
+                    <Alert severity="error">{error}</Alert>
+                </Snackbar>}  
             </div>
         </Container>
     )

@@ -1,8 +1,9 @@
-import { Button, Divider, Grid, List, ListItem, makeStyles, Typography } from '@material-ui/core';
+import { Button, Grid, List, ListItem, makeStyles, Typography } from '@material-ui/core';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { removeProduct, removeProductOption } from '../../actions/cart';
+import {BiTrashAlt} from 'react-icons/bi';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -21,11 +22,10 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const rightSidebar = () => {
+const rightSidebar = ({auth}) => {
 
     const classes = useStyles();
     const cartItems = useSelector((state) => state.cart.cartItems);
-    console.log(cartItems);
     const cartTotal = useSelector((state) => state.cart.total);
     const dispatch = useDispatch();
 
@@ -35,6 +35,12 @@ const rightSidebar = () => {
         else
             dispatch(removeProductOption(item));
     }
+
+    // if(auth.role === 'seller')
+    // {
+    //     return false;
+    // }
+    
     return (
         <div className={classes.root}>
             <Grid container spacing={2}>
@@ -43,28 +49,22 @@ const rightSidebar = () => {
                         cartItems.length > 0 ? 
                         <List className={classes.root}>
                         {cartItems.map((item, index) => {
-                            if(!item.option_name)
-                            {
-                                return (
-                                    <ListItem alignItems="flex-start" key={index}>                                        
-                                        <Typography component="span" variant="body1">
-                                            {item.name} x {item.quantity} = &#8377;{item.quantity*item.price}
-                                        </Typography>
-                                        <Button size="small" color="secondary" className="float-right" variant="outlined" onClick={() => handleRemoveProduct(item)}>-</Button>
-                                    </ListItem>
-                                )
-                            }
-                            else
-                            {
-                                return (
-                                    <ListItem alignItems="flex-start" key={index}>
-                                        <Typography component="span" variant="body1">
-                                            {item.product_name} - ({item.option_name}) x {item.quantity} = &#8377;{item.quantity*item.price}
-                                        </Typography>
-                                        <Button size="small" color="secondary" className="float-right" variant="outlined" onClick={() => handleRemoveProduct(item)}>-</Button>
-                                    </ListItem>
-                                )
-                            }
+                            return (
+                                <ListItem alignItems="flex-start" key={index}>   
+                                    {!item.option_name ? 
+                                    <Typography component="span" variant="body1">
+                                        {item.name} x {item.quantity} = &#8377;{item.quantity*item.price}
+                                    </Typography>
+                                    :
+                                    <Typography component="span" variant="body1">
+                                        {item.product_name} - ({item.option_name}) x {item.quantity} = &#8377;{item.quantity*item.price}
+                                    </Typography>
+                                    }                                     
+                                    <Button size="small" color="secondary" className="float-right" variant="text" onClick={() => handleRemoveProduct(item)}>
+                                        <BiTrashAlt />
+                                    </Button>
+                                </ListItem>
+                            )
                         })}
                         <ListItem alignItems="flex-start">
                             <Typography component="p" variant="body1">

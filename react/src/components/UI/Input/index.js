@@ -1,17 +1,16 @@
-import { TextField } from '@material-ui/core';
 import React from 'react';
+import { TextValidator } from 'react-material-ui-form-validator';
 
-const Input = ({variant, margin, label, type, placeholder, errorMessage, value, name, handleChange, multiline, rows, required, fullWidth, id, autoFocus}) => {
+const Input = ({variant, margin, label, type, validators, placeholder, errorMessages, value, name, handleChange, multiline, rows, required, fullWidth, id, autoFocus}) => {
     
     return (
-        <TextField
+        <TextValidator
             id={id}
             label={label}
             margin={margin}
             type={type}
             value={value}
             name={name}
-            helperText={errorMessage}
             placeholder={placeholder}
             onChange={handleChange}
             variant={variant}
@@ -20,6 +19,8 @@ const Input = ({variant, margin, label, type, placeholder, errorMessage, value, 
             autoFocus={autoFocus}
             multiline={multiline}
             rows={rows}
+            validators={validators}
+            errorMessages={errorMessages}
         />
     )
 }

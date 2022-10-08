@@ -2,21 +2,20 @@ import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import { applyMiddleware, createStore } from 'redux';
 import Header from './components/Header';
 import Categories from './containers/Categories';
 import Home from './containers/Home';
 import Signin from './containers/SignIn';
-import Signup from './containers/SignUp';
-import rootReducer from './reducers';
-import thunk from 'redux-thunk';
 import AddProduct from './containers/Products/addProduct';
 import PrivateRoute from './components/HOC/PrivateRoute';
 import { isUserLoggedIn } from './actions/auth';
 import ShowCategories from './containers/Categories/Categories';
 import CheckOut from './containers/Checkout';
-
-const store = createStore(rootReducer, applyMiddleware(thunk));
+import Orders from './containers/Orders';
+import Users from './containers/Users';
+import store from './store';
+import Products from './containers/Products';
+import TempOrders from './containers/Orders/tempOrders';
 
 function App() {
     const dispatch = useDispatch();
@@ -38,12 +37,15 @@ function App() {
             <Switch>
                 <PrivateRoute path="/" exact component={Home} />
                 <PrivateRoute path="/categories" component={Categories} />
+                <PrivateRoute path="/show-products" component={Products} />
                 <PrivateRoute path="/add-product" component={AddProduct} />
                 <PrivateRoute path="/show-categories" component={ShowCategories} />
+                <PrivateRoute path="/show-users" component={Users} />
+                <PrivateRoute path="/show-orders" component={Orders} />
+                <PrivateRoute path="/show-temp-orders" component={TempOrders} />
                 <PrivateRoute path="/checkout" component={CheckOut} />
 
                 <Route path="/signin" component={Signin} />
-                <Route path="/signup" component={Signup} />
             </Switch>
         </Router>
     </div>

@@ -1,9 +1,6 @@
 import { Grid, List, ListItem, makeStyles } from '@material-ui/core';
 import React from 'react';
-import { Link } from 'react-router-dom';
-import ArrowRightAltIcon from '@material-ui/icons/ArrowRightAlt';
 import { useSelector } from 'react-redux';
-
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -13,16 +10,17 @@ const useStyles = makeStyles((theme) => ({
         position: 'sticky',
         height: '100%',
         top: '90px',
-        maxHeight: '-webkit-calc(100vh - 90px)',
-        maxHeight: 'calc(100vh - 90px)',
-        overFlow: 'hidden',
+        maxHeight: '-webkit-calc(100vh - 200px)',
+        maxHeight: 'calc(100vh - 200px)',
+        overflowY: 'auto',
+        overflowX: 'hidden'
     },
     demo: {
         backgroundColor: theme.palette.background.default,
     },
 }));
 
-const leftSidebar = () => {
+const leftSidebar = ({Link}) => {
     const classes = useStyles();
     const categories = useSelector((state) => state.category.categories);
 
@@ -34,18 +32,11 @@ const leftSidebar = () => {
                     <List>
                         {categories.map((category) => (
                         <ListItem key={category.long_id}>
-                            <Link to={`#${category.slug}`} spy={true} smooth={true}>
-                                {category.name}
+                            <Link spy={true} smooth={true} className={category.slug} to={category.slug}>
+                                {category.name} 
                             </Link>
                         </ListItem>
                         ))}
-                        <ListItem>
-                            <Link
-                                to="/categories"
-                            >
-                                Categories <ArrowRightAltIcon />
-                            </Link>
-                        </ListItem>
                     </List>
                 </div>
                 </Grid>
